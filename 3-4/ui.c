@@ -52,7 +52,6 @@ void print_menu(UI* ui) {
 void destroy_ui(UI* ui) {
     destroy_controller(ui->ctrl);
     free(ui);
-    ui = NULL;
 }
 
 int ui_add(UI* ui) {
@@ -92,8 +91,8 @@ void ui_filter_by_name_substring_and_expired(UI* ui) {
     fgets(substr, 50, stdin);
     printf("%d", (int) strlen(substr));
     substr[strlen(substr) - 1] = '\0';
-    Controller* temp_ctrl1 = ctrl_filter_materials(substring_in_material_name, substr, ui->ctrl);
-    Controller* temp_ctrl2= ctrl_filter_materials(expired_material, ui->today, temp_ctrl1);
+    Controller* temp_ctrl1 = filter_by_name_substring(substr, ui->ctrl);
+    Controller* temp_ctrl2= filter_by_expired(ui->today, temp_ctrl1);
     repo_to_string(temp_ctrl2->repo);
     destroy_repo(temp_ctrl1->repo, 0);
     destroy_repo(temp_ctrl2->repo, 0);
@@ -111,7 +110,7 @@ void ui_filter_by_not_expired_after_date(UI* ui) {
         printf("\ninvalid date\n");
         return;
     }
-    Controller* temp_ctrl = ctrl_filter_materials(not_expired_material, date, ui->ctrl);
+    Controller* temp_ctrl = filter_by_not_expired(date, ui->ctrl);
     repo_to_string(temp_ctrl->repo);
     destroy_repo(temp_ctrl->repo, 0);
     destroy_controller(temp_ctrl);
@@ -123,8 +122,8 @@ void ui_filter_by_substring_sort_by_supplier(UI* ui, int reverse) {
     fgets(substr, 50, stdin);
     fgets(substr, 50, stdin);
     substr[strlen(substr) - 1] = '\0';
-    Controller* temp_ctrl = ctrl_filter_materials(substring_in_material_name, substr, ui->ctrl);
-    ctrl_sort_by_supplier(temp_ctrl, reverse);
+    Controller* temp_ctrl = filter_by_name_substring(substr, ui->ctrl);
+    sort_by_supplier(temp_ctrl, reverse);
     repo_to_string(temp_ctrl->repo);
     destroy_repo(temp_ctrl->repo, 0);
     destroy_controller(temp_ctrl);
@@ -139,9 +138,9 @@ void ui_filter_by_supplier_sort_by_quantity(UI* ui, int reverse) {
     printf("give the desired quantity: ");
     char quantity[10];
     scanf("%s", quantity);
-    Controller* temp_ctrl1 = ctrl_filter_materials(from_supplier, supplier, ui->ctrl);
-    Controller* temp_ctrl2 = ctrl_filter_materials(quantity_less_than, quantity, temp_ctrl1);
-    ctrl_sort_by_quantity(temp_ctrl2, reverse);
+    Controller* temp_ctrl1 = filter_by_supplier(supplier, ui->ctrl);
+    Controller* temp_ctrl2 = filter_by_quantity(quantity, temp_ctrl1);
+    sort_by_quantity(temp_ctrl2, reverse);
     repo_to_string(temp_ctrl2->repo);
     destroy_repo(temp_ctrl1->repo, 0);
     destroy_repo(temp_ctrl2->repo, 0);

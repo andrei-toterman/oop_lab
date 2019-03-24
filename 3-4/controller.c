@@ -4,12 +4,12 @@
 #include <assert.h>
 
 Controller* create_controller(MaterialRepo* repo) {
-    Controller* controller = (Controller*) malloc(sizeof (Controller));
-    controller->repo = repo;
-    controller->oper_len = 0;
-    controller->oper_cap = 5;
-    controller->operation_stack = (Operation**) calloc((unsigned long long)controller->oper_cap, sizeof(Operation*));
-    return controller;
+    Controller* ctrl = (Controller*) malloc(sizeof (Controller));
+    ctrl->repo = repo;
+    ctrl->oper_len = 0;
+    ctrl->oper_cap = 5;
+    ctrl->operation_stack = (Operation**) calloc((unsigned long long)ctrl->oper_cap, sizeof(Operation*));
+    return ctrl;
 }
 
 int ctrl_find(char id[], Controller* ctrl) {
@@ -54,7 +54,8 @@ int ctrl_update(char id[], char name[], char supplier[], char exp_date_str[], in
         return 0;
     }
     int index = repo_find(id, ctrl->repo);
-    add_operation(create_operation(ctrl->repo->materials[index], new_material, "update"), ctrl);
+    if (index == -1) destroy_material(new_material);
+    else add_operation(create_operation(ctrl->repo->materials[index], new_material, "update"), ctrl);
     return repo_update(id, new_material, ctrl->repo);
 }
 
@@ -64,40 +65,27 @@ int ctrl_remove(char id[], Controller* ctrl) {
     return repo_remove(id, ctrl->repo);
 }
 
-Controller* ctrl_filter_materials(int (*filter)(Material*, char []), char args[], Controller* ctrl) {
-    MaterialRepo* new_material_repo = repo_filter_materials(filter, args, ctrl->repo);
-    return create_controller(new_material_repo);
-}
-
-void ctrl_sort_by_quantity(Controller* ctrl, int reverse) {
-    repo_sort_by(ctrl->repo, compare_quantity, reverse);
-}
-
-void ctrl_sort_by_supplier(Controller* ctrl, int reverse) {
-    repo_sort_by(ctrl->repo, compare_supplier, reverse);
-}
-
-int compare_supplier(Material* first_material, Material* second_material) {
+static int compare_supplier(Material* first_material, Material* second_material) {
     return strcmp(first_material->supplier, second_material->supplier) == -1 ? 1 : 0;
 }
 
-int compare_quantity(Material* first_material, Material* second_material) {
+static int compare_quantity(Material* first_material, Material* second_material) {
     return first_material->quantity < second_material->quantity;
 }
 
-int substring_in_material_name(Material* material, char substr[]) {
+static int substring_in_material_name(Material* material, char substr[]) {
     return strstr(material->name, substr) != NULL;
 }
 
-int from_supplier(Material* material, char supplier[]) {
+static int from_supplier(Material* material, char supplier[]) {
     return strcmp(material->supplier, supplier) == 0;
 }
 
-int quantity_less_than(Material* material, char quantity[]) {
+static int quantity_less_than(Material* material, char quantity[]) {
     return material->quantity <= atoi(quantity);
 }
 
-int expired_material(Material* material, char date[]) {
+static int expired_material(Material* material, char date[]) {
     int date_int = 0;
     char temp_string[11];
     strcpy(temp_string, date);
@@ -110,8 +98,36 @@ int expired_material(Material* material, char date[]) {
     return material->exp_date < date_int;
 }
 
-int not_expired_material(Material* material, char date[]) {
+static int not_expired_material(Material* material, char date[]) {
     return !expired_material(material, date);
+}
+
+Controller* filter_by_name_substring(char substr[], Controller* ctrl) {
+    return create_controller(repo_filter_materials(substring_in_material_name, substr, ctrl->repo));
+}
+
+Controller* filter_by_expired(char date[], Controller* ctrl) {
+    return create_controller(repo_filter_materials(expired_material, date, ctrl->repo));
+}
+
+Controller* filter_by_not_expired(char date[], Controller* ctrl) {
+    return create_controller(repo_filter_materials(not_expired_material, date, ctrl->repo));
+}
+
+Controller* filter_by_supplier(char supplier[], Controller* ctrl) {
+    return create_controller(repo_filter_materials(from_supplier, supplier, ctrl->repo));
+}
+
+Controller* filter_by_quantity(char quantity[], Controller* ctrl) {
+    return create_controller(repo_filter_materials(quantity_less_than, quantity, ctrl->repo));
+}
+
+void sort_by_quantity(Controller* ctrl, int reverse) {
+    repo_sort_by(compare_quantity, reverse, ctrl->repo);
+}
+
+void sort_by_supplier(Controller* ctrl, int reverse) {
+    repo_sort_by(compare_supplier, reverse, ctrl->repo);
 }
 
 void destroy_controller(Controller* ctrl) {
@@ -203,92 +219,271 @@ void redo(Controller* ctrl) {
     }
 }
 
-void test_controller() {
-    MaterialRepo* repo = create_material_repo(5);
-    Controller* ctrl = create_controller(repo);
-
-    assert(validate_date("10.10.10"));
-    assert(!validate_date("10.20.10"));
-    assert(!validate_date("100.10.10"));
-    assert(!validate_date("1.1.100000"));
-
-    void* m1 = create_material("", "", "123", 0);
-    assert(!validate_material(m1));
-    destroy_material(m1);
-
-    void* m2 = create_material("abcba", "abbaabc", "1.1.2000", 1);
-    assert(validate_material(m2));
-
-    assert(substring_in_material_name(m2, "bcb"));
-    assert(!substring_in_material_name(m2, "bdb"));
-    assert(expired_material(m2, "2.1.2019"));
-    assert(not_expired_material(m2, "2.1.1101"));
-    assert(from_supplier(m2, "abbaabc"));
-    assert(!from_supplier(m2, "awdwaa"));
-    assert(quantity_less_than(m2, "2"));
-    assert(!quantity_less_than(m2, "0"));
-
-    Operation* op = create_operation(m2, NULL, "add");
-    add_operation(op, ctrl);
-    assert(can_undo(ctrl));
-    destroy_material(m2);
-
-    assert(!can_redo(ctrl));
-    assert(ctrl_add("aaa", "bbb", "12.12.2019", 1, ctrl));
-    assert(ctrl_add("aaa", "bbb", "12.12.2019", 1, ctrl));
-    assert(ctrl_add("aaa", "ccc", "12.12.2019", 1, ctrl));
-    assert(can_undo(ctrl));
-
-    assert(ctrl_find("aaa_bbb_12.12.2019", ctrl) == 0);
-    assert(ctrl_find("aaa_ccc_12.12.2019", ctrl) == 1);
-
-    undo(ctrl);
-    assert(ctrl_find("aaa_ccc_12.12.2019", ctrl) == -1);
-    undo(ctrl);
-    assert(ctrl_find("aaa_bbb_12.12.2019", ctrl) == 0);
-    undo(ctrl);
-    assert(ctrl_find("aaa_bbb_12.12.2019", ctrl) == -1);
-    redo(ctrl);
-    assert(ctrl_find("aaa_bbb_12.12.2019", ctrl) == 0);
-    redo(ctrl);
-    redo(ctrl);
-    assert(ctrl_find("aaa_ccc_12.12.2019", ctrl) == 1);
-
-    assert(ctrl_update("aaa_ccc_12.12.2019", "bbb", "ccc", "1.1.2010", 3, ctrl));
-    assert(ctrl_find("bbb_ccc_1.1.2010", ctrl) == 1);
-    undo(ctrl);
-    assert(ctrl_find("aaa_ccc_12.12.2019", ctrl) == 1);
-    redo(ctrl);
-    assert(!ctrl_update("aaa_bbb_12.12.2019", "bbb", "ccc", "13.13.2010", 3, ctrl));
-
-    assert(ctrl_remove("aaa_bbb_12.12.2019", ctrl));
-    assert(ctrl->repo->len == 1);
-    undo(ctrl);
-    assert(ctrl->repo->len == 2);
-    redo(ctrl);
-    assert(!ctrl_remove("aaa_bbb_12.12.2019", ctrl));
-
-    ctrl_add("a", "x", "1.1.1", 1, ctrl);
-    ctrl_add("b", "y", "1.1.1", 3, ctrl);
-    ctrl_add("c", "x", "1.1.1", 2, ctrl);
-    ctrl_add("d", "y", "1.1.1", 5, ctrl);
-
-    Controller* temp_ctrl = ctrl_filter_materials(from_supplier, "x", ctrl);
-    assert(repo_find("a_x_1.1.1", temp_ctrl->repo) == 0);
-    assert(repo_find("c_x_1.1.1", temp_ctrl->repo) == 1);
-    assert(repo_find("b_y_1.1.1", temp_ctrl->repo) == -1);
-
-    ctrl_sort_by_quantity(ctrl, 0);
-    for (int i = 0; i < ctrl->repo->len - 1; ++i)
-        assert(ctrl->repo->materials[i]->quantity <= ctrl->repo->materials[i + 1]->quantity);
-
-    ctrl_sort_by_supplier(ctrl, 1);
-    for (int i = 0; i < ctrl->repo->len - 1; ++i)
-        assert(strcmp(ctrl->repo->materials[i]->supplier, ctrl->repo->materials[i + 1]->supplier) >= 0);
-
-    destroy_repo(temp_ctrl->repo, 0);
-    destroy_repo(repo, 1);
-    destroy_controller(temp_ctrl);
+static void test_create() {
+    Controller* ctrl = create_controller(create_material_repo(1));
+    assert(ctrl->oper_cap == 5);
+    assert(ctrl->oper_len == 0);
+    destroy_repo(ctrl->repo, 0);
     destroy_controller(ctrl);
+}
 
+static void test_find() {
+    Controller* ctrl = create_controller(create_material_repo(1));
+    populate_repo(ctrl->repo);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", ctrl) == 1);
+    assert(ctrl_find("aaaa", ctrl) == -1);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_validate_date() {
+    assert(validate_date("11.11.11"));
+    assert(!validate_date("111"));
+    assert(!validate_date("32.12.12"));
+    assert(!validate_date("1.13.12"));
+    assert(!validate_date("1.1.111111"));
+}
+
+static void test_validate_material() {
+    Material* m1 = create_material("a", "a", "1.1.1", 1);
+    Material* m2 = create_material("", "a", "1.1.1", 1);
+    Material* m3 = create_material("a", "", "1.1.1", 1);
+    Material* m4 = create_material("a", "a", "111", 1);
+    Material* m5 = create_material("a", "a", "111", -1);
+    assert(validate_material(m1));
+    assert(!validate_material(m2));
+    assert(!validate_material(m3));
+    assert(!validate_material(m4));
+    assert(!validate_material(m5));
+    destroy_material(m1);
+    destroy_material(m2);
+    destroy_material(m3);
+    destroy_material(m4);
+    destroy_material(m5);
+}
+
+static void test_add() {
+    Controller* ctrl = create_controller(create_material_repo(1));
+    assert(ctrl_add("a", "a", "1.1.1", 1, ctrl));
+    assert(!ctrl_add("", "a", "1.1.1", 1, ctrl));
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_update() {
+    Controller* ctrl = create_controller(create_material_repo(1));
+    ctrl_add("a", "a", "1.1.1", 1, ctrl);
+    assert(!ctrl_update("aaa", "b", "b", "2.2.2", 2, ctrl));
+    assert(!ctrl_update("a_a_1.1.1", "b", "b", "13.13.13", 2, ctrl));
+    assert(ctrl_update("a_a_1.1.1", "b", "b", "2.2.2", 2, ctrl));
+    assert(strcmp(ctrl->repo->materials[0]->name, "b") == 0);
+    assert(strcmp(ctrl->repo->materials[0]->supplier, "b") == 0);
+    assert(strcmp(ctrl->repo->materials[0]->exp_date_string, "2.2.2") == 0);
+    assert(strcmp(ctrl->repo->materials[0]->id, "b_b_2.2.2") == 0);
+    assert(ctrl->repo->materials[0]->quantity == 2);
+    assert(ctrl->repo->materials[0]->exp_date == 20202);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_remove() {
+    Controller* ctrl = create_controller(create_material_repo(1));
+    ctrl_add("a", "a", "1.1.1", 1, ctrl);
+    ctrl_add("a", "b", "1.1.1", 1, ctrl);
+    assert(!ctrl_remove("b_b_2.2.2", ctrl));
+    assert(ctrl_remove("a_a_1.1.1", ctrl));
+    assert(ctrl->repo->len == 1);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_filter_by_name_substring() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    Controller* new_ctrl = filter_by_name_substring("a", ctrl);
+    assert(ctrl_find("Chocolate_Hershey_15.2.2019", new_ctrl) > -1);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.4.2018", new_ctrl) == -1);
+    assert(ctrl_find("Yeast_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Flour_Bakersville_14.12.2018", new_ctrl) == -1);
+    assert(ctrl_find("Sugar_Crystal_13.10.2019", new_ctrl) > -1);
+    assert(ctrl_find("Eggs_Chicken_3.1.2019", new_ctrl) == -1);
+    assert(ctrl_find("Baking soda_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Vanilla_Dr.Oetker_20.9.2020", new_ctrl) > -1);
+    assert(ctrl_find("Cinnamon_Dr.Oetker_3.3.2021", new_ctrl) > -1);
+    destroy_repo(new_ctrl->repo, 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+    destroy_controller(new_ctrl);
+}
+
+static void test_filter_by_not_expired() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    Controller* new_ctrl = filter_by_not_expired("12.12.2019", ctrl);
+    assert(ctrl_find("Chocolate_Hershey_15.2.2019", new_ctrl) == -1);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.4.2018", new_ctrl) == -1);
+    assert(ctrl_find("Yeast_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Flour_Bakersville_14.12.2018", new_ctrl) == -1);
+    assert(ctrl_find("Sugar_Crystal_13.10.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.1.2019", new_ctrl) == -1);
+    assert(ctrl_find("Baking soda_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Vanilla_Dr.Oetker_20.9.2020", new_ctrl) > -1);
+    assert(ctrl_find("Cinnamon_Dr.Oetker_3.3.2021", new_ctrl) > -1);
+    destroy_repo(new_ctrl->repo, 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+    destroy_controller(new_ctrl);
+}
+
+static void test_filter_by_expired() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    Controller* new_ctrl = filter_by_expired("12.12.2019", ctrl);
+    assert(ctrl_find("Chocolate_Hershey_15.2.2019", new_ctrl) > -1);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", new_ctrl) > -1);
+    assert(ctrl_find("Eggs_Chicken_3.4.2018", new_ctrl) > -1);
+    assert(ctrl_find("Yeast_Bakersville_10.1.2020", new_ctrl) == -1);
+    assert(ctrl_find("Flour_Bakersville_14.12.2018", new_ctrl) > -1);
+    assert(ctrl_find("Sugar_Crystal_13.10.2019", new_ctrl) > -1);
+    assert(ctrl_find("Eggs_Chicken_3.1.2019", new_ctrl) > -1);
+    assert(ctrl_find("Baking soda_Bakersville_10.1.2020", new_ctrl) == -1);
+    assert(ctrl_find("Vanilla_Dr.Oetker_20.9.2020", new_ctrl) == -1);
+    assert(ctrl_find("Cinnamon_Dr.Oetker_3.3.2021", new_ctrl) == -1);
+    destroy_repo(new_ctrl->repo, 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+    destroy_controller(new_ctrl);
+}
+
+static void test_filter_by_supplier() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    Controller* new_ctrl = filter_by_supplier("Bakersville", ctrl);
+    assert(ctrl_find("Chocolate_Hershey_15.2.2019", new_ctrl) == -1);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.4.2018", new_ctrl) == -1);
+    assert(ctrl_find("Yeast_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Flour_Bakersville_14.12.2018", new_ctrl) > -1);
+    assert(ctrl_find("Sugar_Crystal_13.10.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.1.2019", new_ctrl) == -1);
+    assert(ctrl_find("Baking soda_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Vanilla_Dr.Oetker_20.9.2020", new_ctrl) == -1);
+    assert(ctrl_find("Cinnamon_Dr.Oetker_3.3.2021", new_ctrl) == -1);
+    destroy_repo(new_ctrl->repo, 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+    destroy_controller(new_ctrl);
+}
+
+static void test_filter_by_quantity() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    Controller* new_ctrl = filter_by_quantity("15", ctrl);
+    assert(ctrl_find("Chocolate_Hershey_15.2.2019", new_ctrl) > -1);
+    assert(ctrl_find("Milk_Napolact_20.2.2019", new_ctrl) > -1);
+    assert(ctrl_find("Eggs_Chicken_3.4.2018", new_ctrl) > -1);
+    assert(ctrl_find("Yeast_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Flour_Bakersville_14.12.2018", new_ctrl) == -1);
+    assert(ctrl_find("Sugar_Crystal_13.10.2019", new_ctrl) == -1);
+    assert(ctrl_find("Eggs_Chicken_3.1.2019", new_ctrl) == -1);
+    assert(ctrl_find("Baking soda_Bakersville_10.1.2020", new_ctrl) > -1);
+    assert(ctrl_find("Vanilla_Dr.Oetker_20.9.2020", new_ctrl) == -1);
+    assert(ctrl_find("Cinnamon_Dr.Oetker_3.3.2021", new_ctrl) == -1);
+    destroy_repo(new_ctrl->repo, 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+    destroy_controller(new_ctrl);
+}
+
+static void test_sort_by_quantity() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    sort_by_quantity(ctrl, 0);
+    for (int i = 0; i < ctrl->repo->len -1; ++i)
+        assert(ctrl->repo->materials[i]->quantity <= ctrl->repo->materials[i + 1]->quantity);
+    sort_by_quantity(ctrl, 1);
+    for (int i = 0; i < ctrl->repo->len -1; ++i)
+        assert(ctrl->repo->materials[i]->quantity >= ctrl->repo->materials[i + 1]->quantity);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_sort_by_supplier() {
+    Controller* ctrl = create_controller(create_material_repo(10));
+    populate_repo(ctrl->repo);
+    sort_by_supplier(ctrl, 0);
+    for (int i = 0; i < ctrl->repo->len -1; ++i)
+        assert(strcmp(ctrl->repo->materials[i]->supplier, ctrl->repo->materials[i + 1]->supplier) <= 0);
+    sort_by_supplier(ctrl, 1);
+    for (int i = 0; i < ctrl->repo->len -1; ++i)
+        assert(strcmp(ctrl->repo->materials[i]->supplier, ctrl->repo->materials[i + 1]->supplier) >= 0);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+static void test_undo_redo() {
+    Controller* ctrl = create_controller(create_material_repo(5));
+    assert(ctrl->oper_cap == 5);
+    assert(ctrl->oper_len == 0);
+    ctrl_add("a", "a", "1.1.1", 1, ctrl);
+    ctrl_update("a_a_1.1.1", "b", "b", "2.2.2", 2, ctrl);
+    ctrl_add("c", "c", "3.3.3", 3, ctrl);
+    ctrl_remove("b_b_2.2.2", ctrl);
+    ctrl_update("c_c_3.3.3", "d", "d", "4.4.4", 4, ctrl);
+    ctrl_add("d", "d", "4.4.4", 4, ctrl);
+    assert(ctrl->oper_cap == 10);
+    assert(ctrl->oper_len == 6);
+    undo(ctrl);
+    assert(ctrl_find("d_d_4.4.4", ctrl) == 0);
+    undo(ctrl);
+    assert(ctrl_find("c_c_3.3.3", ctrl) == 0);
+    undo(ctrl);
+    assert(ctrl_find("b_b_2.2.2", ctrl) == 1);
+    undo(ctrl);
+    assert(ctrl_find("c_c_3.3.3", ctrl) == -1);
+    undo(ctrl);
+    assert(ctrl_find("a_a_1.1.1", ctrl) == 0);
+    undo(ctrl);
+    assert(ctrl->repo->len == 0);
+    assert(ctrl->oper_len == 0);
+    redo(ctrl);
+    assert(ctrl_find("a_a_1.1.1", ctrl) == 0);
+    redo(ctrl);
+    assert(ctrl_find("b_b_2.2.2", ctrl) == 0);
+    redo(ctrl);
+    assert(ctrl_find("c_c_3.3.3", ctrl) == 1);
+    redo(ctrl);
+    assert(ctrl_find("b_b_2.2.2", ctrl) == -1);
+    redo(ctrl);
+    assert(ctrl_find("d_d_4.4.4", ctrl) == 0);
+    assert(ctrl->oper_len == 5);
+    undo(ctrl);
+    undo(ctrl);
+    undo(ctrl);
+    undo(ctrl);
+    ctrl_add("e", "e", "5.5.5", 5, ctrl);
+    assert(ctrl->oper_len == 2);
+    assert(ctrl->operation_stack[2] == NULL);
+    destroy_repo(ctrl->repo, 1);
+    destroy_controller(ctrl);
+}
+
+void test_controller() {
+    test_create();
+    test_find();
+    test_validate_date();
+    test_validate_material();
+    test_add();
+    test_update();
+    test_remove();
+    test_filter_by_name_substring();
+    test_filter_by_not_expired();
+    test_filter_by_expired();
+    test_filter_by_supplier();
+    test_filter_by_quantity();
+    test_sort_by_quantity();
+    test_sort_by_supplier();
+    test_undo_redo();
 }

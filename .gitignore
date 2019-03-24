@@ -7,3 +7,4 @@
 *.exe
 **/.vs
 *.vcx*
+*.log

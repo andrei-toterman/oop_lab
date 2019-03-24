@@ -66,13 +66,40 @@ output: 1 if the Material has been found and removed, 0 if not
 int ctrl_remove(char id[], Controller* ctrl);
 
 /*
-creates a new Controller from the Materials from a given Controller's repo that satisfy a given function
-input: filter: pointer to a bool function which takes a pointer to a Material and a string
-       args: arguments to be passed to filter
+creates a new Controller from the Materials from a given Controller's repo that have a given string in their name
+input: substr: substring that must be in the name
        ctrl: pointer to Controller from which to take Materials
 output: the newly created Controller with the Materials which satisfied the filter
 */
-Controller* ctrl_filter_materials(int (*filter)(Material* , char []), char args[], Controller* ctrl);
+Controller* filter_by_name_substring(char substr[], Controller* ctrl);
+/*
+creates a new Controller from the Materials from a given Controller's repo that surpassed a given date
+input: date: date with which to compare
+       ctrl: pointer to Controller from which to take Materials
+output: the newly created Controller with the Materials which satisfied the filter
+*/
+Controller* filter_by_expired(char date[], Controller* ctrl);
+/*
+creates a new Controller from the Materials from a given Controller's repo that have not surpassed a given date
+input: date: date with which to compare
+       ctrl: pointer to Controller from which to take Materials
+output: the newly created Controller with the Materials which satisfied the filter
+*/
+Controller* filter_by_not_expired(char date[], Controller* ctrl);
+/*
+creates a new Controller from the Materials from a given Controller's repo that have the same supplier
+input: supplier: supplier to search for
+       ctrl: pointer to Controller from which to take Materials
+output: the newly created Controller with the Materials which satisfied the filter
+*/
+Controller* filter_by_supplier(char supplier[], Controller* ctrl);
+/*
+creates a new Controller from the Materials from a given Controller's repo that have the quantity less than a given one
+input: quantity: quantity with which to compare
+       ctrl: pointer to Controller from which to take Materials
+output: the newly created Controller with the Materials which satisfied the filter
+*/
+Controller* filter_by_quantity(char quantity[], Controller* ctrl);
 
 /*
 sorts the Materials from a given repository based on their quantity
@@ -80,65 +107,14 @@ input: repo: pointer to the MaterialRepo which must be sorted
        reverse: 0 for ascending order, 1 for descending order
 output: -
 */
-void ctrl_sort_by_quantity(Controller* ctrl, int reverse);
+void sort_by_quantity(Controller* ctrl, int reverse);
 /*
 sorts the Materials from a given repository based on their supplier
 input: repo: pointer to the MaterialRepo which must be sorted
        reverse: 0 for ascending order, 1 for descending order
 output: -
 */
-void ctrl_sort_by_supplier(Controller* ctrl, int reverse);
-
-/*
-compares the suppliers of two Materials alphabetically
-input: first_material, second material: pointers to the two Materials to compare
-       reverse: whether the comparison should be done in reverse (1) or not (0)
-output: 1 if the first Material is less than the second one, 0 if not
-*/
-int compare_supplier(Material* first_material, Material* second_material);
-/*
-compares the quantities of two Materials
-input: first_material, second material: pointers to the two Materials to compare
-       reverse: whether the comparison should be done in reverse (1) or not (0)
-output: 1 if the first Material is less than the second one, 0 if not
-*/
-int compare_quantity(Material* first_material, Material* second_material);
-
-/*
-checks if a given Material has surpassed a given date
-input: material: pointer to Materil which to check
-       current_date: string date to which to compare the Material "dd.mm.yyyy"
-output: 1 if the Material has surpassed the date, 0 if not
-*/
-int expired_material(Material* material, char current_date[]);
-/*
-checks if a given Material has not surpassed a given date
-input: material: pointer to Materil which to check
-       current_date: string date to which to compare the Material "dd.mm.yyyy"
-output: 0 if the Material has surpassed the date, 1 if not
-*/
-int not_expired_material(Material* material, char date[]);
-/*
-checks if a given Material has a given substring in its name
-input: material: pointer to Material which to check
-       substr: substring with which to check
-output: 1 if the name has the substring, 0 if not
-*/
-int substring_in_material_name(Material* material, char substr[]);
-/*
-checks if a given Material is from a given supplier
-input: material: pointer to Material which to check
-       supplier: string with which to check
-output: 1 if the Material is from the supplier, 0 if not
-*/
-int from_supplier(Material* material, char supplier[]);
-/*
-checks if a given Material has the quantity smaller than a given value
-input: material: pointer to Material which to check
-       quantity: value with which to check
-output: 1 if the Material's quantity is less than the given value, 0 if not
-*/
-int quantity_less_than(Material* material, char quantity[]);
+void sort_by_supplier(Controller* ctrl, int reverse);
 
 /*
 adds a given Operation to a given Controller's operation stack

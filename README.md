@@ -1,1 +1,1 @@
-oop_lab
+Projects for second semester OOP labs

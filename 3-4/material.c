@@ -51,7 +51,7 @@ void destroy_material(Material* material) {
     free(material->exp_date_string);
     free(material->id);
     free(material);
-    material = NULL;
+    material = 0;
 }
 
 void overwrite_material(Material* dest_material, Material* source_material) {
@@ -67,23 +67,33 @@ void overwrite_material(Material* dest_material, Material* source_material) {
     dest_material->exp_date = source_material->exp_date;
 }
 
-void test_material() {
+static void test_create() {
+    Material* material = create_material("Chocolate", "Hershey", "20.3.2019", 5);
+    assert(strcmp(material->supplier, "Hershey") == 0);
+    assert(material->quantity == 5);
+    assert(material->exp_date == 20190320);
+    assert(strcmp(material->exp_date_string, "20.3.2019") == 0);
+    assert(strcmp(material->id, "Chocolate_Hershey_20.3.2019") == 0);
+    destroy_material(material);
+}
+
+static void test_overwrite() {
     Material* material = create_material("Chocolate", "Hershey", "20.3.2019", 5);
     Material* copy = create_material("", "", "", 0);
     overwrite_material(copy, material);
     assert(strcmp(material->name, "Chocolate") == 0);
     assert(strcmp(copy->name, "Chocolate") == 0);
-    assert(strcmp(material->supplier, "Hershey") == 0);
     assert(strcmp(copy->supplier, "Hershey") == 0);
-    assert(material->quantity == 5);
-    assert(copy->quantity == 5);
-    assert(strcmp(material->exp_date_string, "20.3.2019") == 0);
     assert(strcmp(copy->exp_date_string, "20.3.2019") == 0);
-    assert(material->exp_date == 20190320);
+    assert(copy->quantity == 5);
     assert(copy->exp_date == 20190320);
-    assert(strcmp(material->id, "Chocolate_Hershey_20.3.2019") == 0);
     assert(strcmp(copy->id, "Chocolate_Hershey_20.3.2019") == 0);
 
-    destroy_material(material);
     destroy_material(copy);
+    destroy_material(material);
+}
+
+void test_material() {
+    test_create();
+    test_overwrite();
 }

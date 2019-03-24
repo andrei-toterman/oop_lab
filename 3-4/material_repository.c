@@ -50,16 +50,15 @@ int repo_remove(char id[], MaterialRepo* repo) {
     return 1;
 }
 
-void destroy_repo(MaterialRepo* material_repo, int with_materials) {
-    if (material_repo == NULL) return;
-    for (int i = 0; i < material_repo->len && with_materials; ++i)
-        destroy_material(material_repo->materials[i]);
-    free(material_repo->materials);
-    free(material_repo);
-    material_repo = NULL;
+void destroy_repo(MaterialRepo* repo, int with_materials) {
+    if (repo == NULL) return;
+    for (int i = 0; i < repo->len && with_materials; ++i)
+        destroy_material(repo->materials[i]);
+    free(repo->materials);
+    free(repo);
 }
 
-MaterialRepo* repo_filter_materials(int (*filter)(Material* material, char args[]), char args[], MaterialRepo* repo) {
+MaterialRepo* repo_filter_materials(int (*filter)(Material*, char[]), char args[], MaterialRepo* repo) {
     MaterialRepo* new_material_repo = create_material_repo(repo->len);
     for (int i = 0; i < repo->len; ++i)
         if (filter(repo->materials[i], args))
@@ -67,7 +66,7 @@ MaterialRepo* repo_filter_materials(int (*filter)(Material* material, char args[
     return new_material_repo;
 }
 
-void repo_sort_by(MaterialRepo* repo, int (*compare)(Material*, Material*), int reverse) {
+void repo_sort_by(int (*compare)(Material*, Material*), int reverse, MaterialRepo* repo) {
     for (int i = 0; i < repo->len - 1; ++i) {
         int min = i;
         for (int j = i + 1; j < repo->len; ++j)
@@ -104,7 +103,6 @@ void repo_to_string(MaterialRepo* repo) {
     for (int i = -35; i < max_name_length + max_supplier_length; ++i) printf("-");
 
     for (int i = 0; i < repo->len; ++i) {
-
         printf("\n%s", repo->materials[i]->name);
         for (int j = (int) strlen(repo->materials[i]->name); j < max_name_length; ++j) printf(" ");
         printf(" | %s", repo->materials[i]->supplier);
@@ -116,39 +114,69 @@ void repo_to_string(MaterialRepo* repo) {
     printf("\n");
 }
 
+static void test_create() {
+    MaterialRepo* repo = create_material_repo(5);
+    assert(repo->cap == 5);
+    assert(repo->len == 0);
+    populate_repo(repo);
+    assert(repo->cap == 10);
+    assert(repo->len == 10);
+    destroy_repo(repo, 1);
+}
+
+static void test_find() {
+    MaterialRepo* repo = create_material_repo(11);
+    populate_repo(repo);
+    assert(repo_find("Milk_Napolact_20.2.2019", repo) == 1);
+    assert(repo_find("aaa", repo) == -1);
+    destroy_repo(repo, 1);
+}
+
+static void test_add() {
+    MaterialRepo* repo = create_material_repo(5);
+    repo_add(create_material("a", "a", "1.1.1", 1), repo);
+    assert(repo->len == 1);
+    destroy_repo(repo, 1);
+}
+
+static void test_add_existing() {
+    MaterialRepo* repo = create_material_repo(5);
+    repo_add(create_material("a", "a", "1.1.1", 1), repo);
+    repo_add(create_material("a", "a", "1.1.1", 2), repo);
+    assert(repo->len == 1);
+    assert(repo->materials[0]->quantity == 3);
+    destroy_repo(repo, 1);
+}
+
+static void test_remove() {
+    MaterialRepo* repo = create_material_repo(5);
+    repo_add(create_material("a", "a", "1.1.1", 1), repo);
+    repo_remove("a_a_1.1.1", repo);
+    assert(repo->len == 0);
+    destroy_repo(repo, 1);
+}
+
+static void test_update() {
+    MaterialRepo* repo = create_material_repo(5);
+    Material* m = create_material("a", "a", "1.1.1", 1);
+    repo_add(m, repo);
+    repo_update("a_a_1.1.1", create_material("b", "c", "2.2.2", 2), repo);
+    assert(strcmp(m->name, "b") == 0);
+    assert(strcmp(m->supplier, "c") == 0);
+    assert(strcmp(m->exp_date_string, "2.2.2") == 0);
+    assert(m->quantity == 2);
+    assert(m->exp_date == 20202);
+    assert(strcmp(m->id, "b_c_2.2.2") == 0);
+    destroy_repo(repo, 1);
+}
+
 void test_repo() {
-    MaterialRepo* material_repo = create_material_repo(1);
-    assert(material_repo->cap == 1);
-    assert(material_repo->len == 0);
-
-    repo_add(create_material("Chocolate", "Hershey", "20.3.2019", 5), material_repo);
-
-    assert(material_repo->len == 1);
-    assert(repo_find("Chocolate_Hershey_20.3.2019", material_repo) == 0);
-
-    repo_add(create_material("Eggs", "Chicken", "20.3.2019", 2), material_repo);
-    assert(repo_find("Eggs_Chicken_20.3.2019", material_repo) == 1);
-    assert(material_repo->len == 2);
-    assert(material_repo->cap == 2);
-
-    repo_add(create_material("Chocolate", "Hershey", "20.3.2019", 2), material_repo);
-    assert(material_repo->len == 2);
-    assert(material_repo->cap == 2);
-
-    repo_update("Chocolate_Hershey_20.3.2019", create_material("Milk", "Napolact", "1.1.2013", 4), material_repo);
-    assert(repo_find("Milk_Napolact_1.1.2013", material_repo) == 0);
-
-    repo_remove("Milk_Napolact_1.1.2013", material_repo);
-    assert(repo_find("Eggs_Chicken_20.3.2019", material_repo) == 0);
-    assert(material_repo->len == 1);
-
-    repo_add(create_material("a", "a", "1.1.1", 2), material_repo);
-    repo_add(create_material("b", "a", "1.1.1", 1), material_repo);
-    repo_add(create_material("c", "a", "1.1.1", 4), material_repo);
-    repo_add(create_material("d", "a", "1.1.1", 3), material_repo);
-    repo_add(create_material("e", "a", "1.1.1", 6), material_repo);
-
-    destroy_repo(material_repo, 1);
+    test_create();
+    test_find();
+    test_add();
+    test_add_existing();
+    test_remove();
+    test_update();
 }
 
 void populate_repo(MaterialRepo* repo) {
