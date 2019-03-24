@@ -38,15 +38,14 @@ void print_menu(UI* ui) {
                 redo_mat->quantity);
     }
 
-    printf("\n1. add a material"
-           "\n2. delete a material by id"
-           "\n3. update a material by id"
-           "\n\n4. filter materials"
-           "\n5. sort materials in short supply and same supplier"
-           "\n6. print all the materials"
-           "\n\n7. undo: %s"
+    printf("\n1. print all the materials"
+           "\n2. add a material"
+           "\n3. delete a material by id"
+           "\n4. update a material by id"
+           "\n5. filter materials"
+           "\n6. sort materials"
+           "\n7. undo: %s"
            "\n8. redo: %s"
-           "\n9. sort materials that contain a given string by supplier"
            "\n0. exit", undo, redo);
 }
 
@@ -91,6 +90,8 @@ void ui_filter_by_name_substring_and_expired(UI* ui) {
     printf("give the substring (leave empty for all materials): ");
     fgets(substr, 50, stdin);
     fgets(substr, 50, stdin);
+    printf("%d", (int) strlen(substr));
+    substr[strlen(substr) - 1] = '\0';
     Controller* temp_ctrl1 = ctrl_filter_materials(substring_in_material_name, substr, ui->ctrl);
     Controller* temp_ctrl2= ctrl_filter_materials(expired_material, ui->today, temp_ctrl1);
     repo_to_string(temp_ctrl2->repo);
@@ -103,8 +104,9 @@ void ui_filter_by_name_substring_and_expired(UI* ui) {
 void ui_filter_by_not_expired_after_date(UI* ui) {
     char date[11];
     printf("give the date: ");
-    fgets(date, 11, stdin);
-    fgets(date, 11, stdin);
+    fgets(date, 12, stdin);
+    fgets(date, 12, stdin);
+    date[strlen(date) - 1] = '\0';
     if (!validate_date(date)) {
         printf("\ninvalid date\n");
         return;
@@ -115,23 +117,25 @@ void ui_filter_by_not_expired_after_date(UI* ui) {
     destroy_controller(temp_ctrl);
 }
 
-void ui_sort_by_supplier(UI* ui) {
+void ui_filter_by_substring_sort_by_supplier(UI* ui, int reverse) {
     char substr[50];
     printf("give the string: ");
     fgets(substr, 50, stdin);
     fgets(substr, 50, stdin);
+    substr[strlen(substr) - 1] = '\0';
     Controller* temp_ctrl = ctrl_filter_materials(substring_in_material_name, substr, ui->ctrl);
-    ctrl_sort_by_supplier(temp_ctrl);
+    ctrl_sort_by_supplier(temp_ctrl, reverse);
     repo_to_string(temp_ctrl->repo);
     destroy_repo(temp_ctrl->repo, 0);
     destroy_controller(temp_ctrl);
 }
 
-void ui_sort_by_quantity(UI* ui, int reverse) {
+void ui_filter_by_supplier_sort_by_quantity(UI* ui, int reverse) {
     char supplier[50];
     printf("give the supplier: ");
     fgets(supplier, 50, stdin);
     fgets(supplier, 50, stdin);
+    supplier[strlen(supplier) - 1] = '\0';
     printf("give the desired quantity: ");
     char quantity[10];
     scanf("%s", quantity);
@@ -160,6 +164,10 @@ void start_ui(UI* ui) {
         switch (cmd) {
             case 0: break;
             case 1: {
+                repo_to_string(ui->ctrl->repo);
+                break;
+            }
+            case 2: {
                 if (ui_add(ui)) {
                     repo_to_string(ui->ctrl->repo);
                     printf("\nmaterial added successfully\n");
@@ -167,7 +175,7 @@ void start_ui(UI* ui) {
                 else printf("\ninvalid input\n");
                 break;
             }
-            case 2: {
+            case 3: {
                 if (ui_remove(ui)) {
                     repo_to_string(ui->ctrl->repo);
                     printf("\nmaterial deleted successfully\n");
@@ -175,7 +183,7 @@ void start_ui(UI* ui) {
                 else printf("\ninvalid input\n");
                 break;
             }
-            case 3: {
+            case 4: {
                 if (ui_update(ui)) {
                     repo_to_string(ui->ctrl->repo);
                     printf("\nmaterial updated successfully\n");
@@ -183,7 +191,7 @@ void start_ui(UI* ui) {
                 else printf("\ninvalid input\n");
                 break;
             }
-            case 4: {
+            case 5: {
                 printf("\n1. that have a substring in their name and are past the expiration date");
                 printf("\n2. that will not be expired after a given date");
                 printf("\ngive a valid command: ");
@@ -194,17 +202,32 @@ void start_ui(UI* ui) {
                 else printf("\ninvalid command\n");
                 break;
             }
-            case 5: {
-                printf("\n1. ascending");
-                printf("\n2. descending");
+            case 6: {
+                printf("\n1. that are in short supply and same supplier, by quantity");
+                printf("\n2. that contain a given string, by supplier");
                 printf("\ngive a valid command: ");
                 scanf("%d", &cmd);
-                if (cmd == 1 || cmd == 2) ui_sort_by_quantity(ui, cmd - 1);
-                else printf("\ninvalid command\n");
-                break;
-            }
-            case 6: {
-                repo_to_string(ui->ctrl->repo);
+                switch (cmd) {
+                    case 1: {
+                        printf("\n1. ascending");
+                        printf("\n2. descending");
+                        printf("\ngive a valid command: ");
+                        scanf("%d", &cmd);
+                        if (cmd == 1 || cmd == 2) ui_filter_by_supplier_sort_by_quantity(ui, cmd - 1);
+                        else printf("\ninvalid command\n");
+                        break;
+                    }
+                    case 2: {
+                        printf("\n1. ascending");
+                        printf("\n2. descending");
+                        printf("\ngive a valid command: ");
+                        scanf("%d", &cmd);
+                        if (cmd == 1 || cmd == 2) ui_filter_by_substring_sort_by_supplier(ui, cmd - 1);
+                        else printf("\ninvalid command\n");
+                        break;
+                    }
+                    default: printf("\ninvalid command\n");
+                }
                 break;
             }
             case 7: {
@@ -215,10 +238,6 @@ void start_ui(UI* ui) {
             case 8: {
                 redo(ui->ctrl);
                 repo_to_string(ui->ctrl->repo);
-                break;
-            }
-            case 9: {
-                ui_sort_by_supplier(ui);
                 break;
             }
             default: printf("\ninvalid command\n");

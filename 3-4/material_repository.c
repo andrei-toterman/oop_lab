@@ -67,24 +67,11 @@ MaterialRepo* repo_filter_materials(int (*filter)(Material* material, char args[
     return new_material_repo;
 }
 
-void repo_sort_by_quantity(MaterialRepo* repo, int reverse) {
-    reverse = -2 * reverse + 1;
+void repo_sort_by(MaterialRepo* repo, int (*compare)(Material*, Material*), int reverse) {
     for (int i = 0; i < repo->len - 1; ++i) {
         int min = i;
         for (int j = i + 1; j < repo->len; ++j)
-            if (reverse * repo->materials[j]->quantity < reverse * repo->materials[min]->quantity)
-                min = j;
-        Material* temp = repo->materials[min];
-        repo->materials[min] = repo->materials[i];
-        repo->materials[i] = temp;
-    }
-}
-
-void repo_sort_by_supplier(MaterialRepo* repo) {
-    for (int i = 0; i < repo->len - 1; ++i) {
-        int min = i;
-        for (int j = i + 1; j < repo->len; ++j)
-            if (strcmp(repo->materials[j]->supplier, repo->materials[min]->supplier) == 1)
+            if (compare(repo->materials[j], repo->materials[min]) != reverse)
                 min = j;
         Material* temp = repo->materials[min];
         repo->materials[min] = repo->materials[i];
@@ -160,14 +147,6 @@ void test_repo() {
     repo_add(create_material("c", "a", "1.1.1", 4), material_repo);
     repo_add(create_material("d", "a", "1.1.1", 3), material_repo);
     repo_add(create_material("e", "a", "1.1.1", 6), material_repo);
-
-    repo_sort_by_quantity(material_repo, 0);
-    for (int i = 0; i < material_repo->len - 1; ++i)
-        assert(material_repo->materials[i]->quantity <= material_repo->materials[i + 1]->quantity);
-
-    repo_sort_by_quantity(material_repo, 1);
-    for (int i = 0; i < material_repo->len - 1; ++i)
-        assert(material_repo->materials[i]->quantity >= material_repo->materials[i + 1]->quantity);
 
     destroy_repo(material_repo, 1);
 }

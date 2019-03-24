@@ -64,17 +64,25 @@ int ctrl_remove(char id[], Controller* ctrl) {
     return repo_remove(id, ctrl->repo);
 }
 
-Controller* ctrl_filter_materials(int (*filter)(Material* material, char args[]), char args[], Controller* ctrl) {
+Controller* ctrl_filter_materials(int (*filter)(Material*, char []), char args[], Controller* ctrl) {
     MaterialRepo* new_material_repo = repo_filter_materials(filter, args, ctrl->repo);
     return create_controller(new_material_repo);
 }
 
 void ctrl_sort_by_quantity(Controller* ctrl, int reverse) {
-    repo_sort_by_quantity(ctrl->repo, reverse);
+    repo_sort_by(ctrl->repo, compare_quantity, reverse);
 }
 
-void ctrl_sort_by_supplier(Controller* ctrl) {
-    repo_sort_by_supplier(ctrl->repo);
+void ctrl_sort_by_supplier(Controller* ctrl, int reverse) {
+    repo_sort_by(ctrl->repo, compare_supplier, reverse);
+}
+
+int compare_supplier(Material* first_material, Material* second_material) {
+    return strcmp(first_material->supplier, second_material->supplier) == -1 ? 1 : 0;
+}
+
+int compare_quantity(Material* first_material, Material* second_material) {
+    return first_material->quantity < second_material->quantity;
 }
 
 int substring_in_material_name(Material* material, char substr[]) {
@@ -261,14 +269,22 @@ void test_controller() {
     assert(!ctrl_remove("aaa_bbb_12.12.2019", ctrl));
 
     ctrl_add("a", "x", "1.1.1", 1, ctrl);
-    ctrl_add("b", "y", "1.1.1", 1, ctrl);
-    ctrl_add("c", "x", "1.1.1", 1, ctrl);
-    ctrl_add("d", "y", "1.1.1", 1, ctrl);
+    ctrl_add("b", "y", "1.1.1", 3, ctrl);
+    ctrl_add("c", "x", "1.1.1", 2, ctrl);
+    ctrl_add("d", "y", "1.1.1", 5, ctrl);
 
     Controller* temp_ctrl = ctrl_filter_materials(from_supplier, "x", ctrl);
     assert(repo_find("a_x_1.1.1", temp_ctrl->repo) == 0);
     assert(repo_find("c_x_1.1.1", temp_ctrl->repo) == 1);
     assert(repo_find("b_y_1.1.1", temp_ctrl->repo) == -1);
+
+    ctrl_sort_by_quantity(ctrl, 0);
+    for (int i = 0; i < ctrl->repo->len - 1; ++i)
+        assert(ctrl->repo->materials[i]->quantity <= ctrl->repo->materials[i + 1]->quantity);
+
+    ctrl_sort_by_supplier(ctrl, 1);
+    for (int i = 0; i < ctrl->repo->len - 1; ++i)
+        assert(strcmp(ctrl->repo->materials[i]->supplier, ctrl->repo->materials[i + 1]->supplier) >= 0);
 
     destroy_repo(temp_ctrl->repo, 0);
     destroy_repo(repo, 1);

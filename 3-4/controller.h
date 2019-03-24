@@ -72,7 +72,7 @@ input: filter: pointer to a bool function which takes a pointer to a Material an
        ctrl: pointer to Controller from which to take Materials
 output: the newly created Controller with the Materials which satisfied the filter
 */
-Controller* ctrl_filter_materials(int (*filter)(Material* material, char args[]), char args[], Controller* ctrl);
+Controller* ctrl_filter_materials(int (*filter)(Material* , char []), char args[], Controller* ctrl);
 
 /*
 sorts the Materials from a given repository based on their quantity
@@ -82,11 +82,27 @@ output: -
 */
 void ctrl_sort_by_quantity(Controller* ctrl, int reverse);
 /*
-sorts the Materials from a given repository based on their supplier, in descending order
+sorts the Materials from a given repository based on their supplier
 input: repo: pointer to the MaterialRepo which must be sorted
+       reverse: 0 for ascending order, 1 for descending order
 output: -
 */
-void ctrl_sort_by_supplier(Controller* ctrl);
+void ctrl_sort_by_supplier(Controller* ctrl, int reverse);
+
+/*
+compares the suppliers of two Materials alphabetically
+input: first_material, second material: pointers to the two Materials to compare
+       reverse: whether the comparison should be done in reverse (1) or not (0)
+output: 1 if the first Material is less than the second one, 0 if not
+*/
+int compare_supplier(Material* first_material, Material* second_material);
+/*
+compares the quantities of two Materials
+input: first_material, second material: pointers to the two Materials to compare
+       reverse: whether the comparison should be done in reverse (1) or not (0)
+output: 1 if the first Material is less than the second one, 0 if not
+*/
+int compare_quantity(Material* first_material, Material* second_material);
 
 /*
 checks if a given Material has surpassed a given date

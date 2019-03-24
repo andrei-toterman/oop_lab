@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "material.h"
 
 /*
@@ -66,20 +66,16 @@ input: filter: pointer to a bool function which takes a pointer to a Material an
        ctrl: pointer to Controller from which to take Materials
 output: the newly created MaterialRepo with the Materials which satisfied the filter
 */
-MaterialRepo* repo_filter_materials(int (*filter)(Material* material, char args[]), char args[], MaterialRepo* repo);
+MaterialRepo* repo_filter_materials(int (*filter)(Material*, char []), char args[], MaterialRepo* repo);
+
 /*
-sorts the Materials from a given repository based on their quantity
+sorts the Materials from a given repository based on comparison function
 input: repo: pointer to the MaterialRepo which must be sorted
-       reverse: 0 for ascending order, 1 for descending order
+       compare: pointer to function that takes two Material pointers and compares them
+       reverse: whether the comparison should be done in reverse (1) or not (0)
 output: -
 */
-void repo_sort_by_quantity(MaterialRepo* repo, int reverse);
-/*
-sorts the Materials from a given repository based on their supplier, in descending order
-input: repo: pointer to the MaterialRepo which must be sorted
-output: -
-*/
-void repo_sort_by_supplier(MaterialRepo* repo);
+void repo_sort_by(MaterialRepo* repo, int (*compare)(Material*, Material*), int reverse);
 
 /*
 prints a string representation of a given MaterialRepo
