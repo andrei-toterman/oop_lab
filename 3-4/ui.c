@@ -13,14 +13,19 @@ UI* create_ui(Controller* controller) {
     return ui;
 }
 
-void print_menu(UI* ui) {
+void destroy_ui(UI* ui) {
+    destroy_controller(ui->ctrl);
+    free(ui);
+}
+
+static void print_menu(UI* ui) {
     char undo[50];
     char redo[50];
 
     if (!can_undo(ui->ctrl)) strcpy(undo, "no undo disponible");
     else {
         Material* undo_mat = ui->ctrl->operation_stack[ui->ctrl->oper_len - 1]->material;
-        sprintf(undo, "%s %s %s %s %d",
+        sprintf(undo, "%s, %s, %s, %s, %d",
                 ui->ctrl->operation_stack[ui->ctrl->oper_len - 1]->type,
                 undo_mat->name,
                 undo_mat->supplier,
@@ -30,7 +35,7 @@ void print_menu(UI* ui) {
     if (!can_redo(ui->ctrl)) strcpy(redo, "no redo disponible");
     else {
         Material* redo_mat = ui->ctrl->operation_stack[ui->ctrl->oper_len]->material;
-        sprintf(redo, "%s %s %s %s %d",
+        sprintf(redo, "%s, %s, %s, %s, %d",
                 ui->ctrl->operation_stack[ui->ctrl->oper_len]->type,
                 redo_mat->name,
                 redo_mat->supplier,
@@ -49,103 +54,95 @@ void print_menu(UI* ui) {
            "\n0. exit", undo, redo);
 }
 
-void destroy_ui(UI* ui) {
-    destroy_controller(ui->ctrl);
-    free(ui);
-}
-
-int ui_add(UI* ui) {
-    char name[50];
-    char supplier[50];
-    char exp_date[11];
+static int ui_add(UI* ui) {
+    char name[50], supplier[50], exp_date[11];
     int quantity;
-    printf("give name, supplier, expiration date and quantity, separated by space:\n");
-    scanf("%s %s %s %d", name, supplier, exp_date, &quantity);
+    getchar();
+    printf("give the name: ");
+    fgets(name, 49, stdin);
+    printf("give the supplier: ");
+    fgets(supplier, 49, stdin);
+    printf("give the expiration date: ");
+    scanf("%s10", exp_date);
+    printf("give the quantity: ");
+    scanf("%d", &quantity);
+    name[strlen(name) - 1] = '\0';
+    supplier[strlen(supplier) - 1] = '\0';
     return ctrl_add(name, supplier, exp_date, quantity, ui->ctrl);
 }
 
-int ui_remove(UI* ui) {
+static int ui_remove(UI* ui) {
     char id[50];
     printf("give the id of the material you want to remove (Name_Supplier_ExpirationDate): ");
-    scanf("%s", id);
+    scanf("%49s", id);
     return ctrl_remove(id, ui->ctrl);
 }
 
-int ui_update(UI* ui) {
-    char name[50];
-    char supplier[50];
+static int ui_update(UI* ui) {
+    char name[50], supplier[50], exp_date[11], id[50];
     int quantity;
-    char exp_date[11];
-    char id[50];
     printf("give the id of the material you want to remove (Name_Supplier_ExpirationDate): ");
-    scanf("%s", id);
-    printf("give name, supplier, expiration date and quantity of new material, separated by space:\n");
-    scanf("%s %s %s %d", name, supplier, exp_date, &quantity);
+    scanf("%49s", id);
+    getchar();
+    printf("give the name: ");
+    fgets(name, 49, stdin);
+    printf("give the supplier: ");
+    fgets(supplier, 49, stdin);
+    printf("give the expiration date: ");
+    scanf("%s10", exp_date);
+    printf("give the quantity: ");
+    scanf("%d", &quantity);
+    name[strlen(name) - 1] = '\0';
+    supplier[strlen(supplier) - 1] = '\0';
     return ctrl_update(id, name, supplier, exp_date, quantity, ui->ctrl);
 }
 
-void ui_filter_by_name_substring_and_expired(UI* ui) {
+static void ui_filter_by_name_substring_and_expired(UI* ui) {
     char substr[50];
     printf("give the substring (leave empty for all materials): ");
-    fgets(substr, 50, stdin);
-    fgets(substr, 50, stdin);
-    printf("%d", (int) strlen(substr));
+    getchar();
+    fgets(substr, 49, stdin);
     substr[strlen(substr) - 1] = '\0';
-    Controller* temp_ctrl1 = filter_by_name_substring(substr, ui->ctrl);
-    Controller* temp_ctrl2= filter_by_expired(ui->today, temp_ctrl1);
-    repo_to_string(temp_ctrl2->repo);
-    destroy_repo(temp_ctrl1->repo, 0);
-    destroy_repo(temp_ctrl2->repo, 0);
-    destroy_controller(temp_ctrl1);
-    destroy_controller(temp_ctrl2);
+    MaterialRepo* temp_repo = filter_by_name_substring_and_expired(substr, ui->today, ui->ctrl);
+    repo_to_string(temp_repo);
+    destroy_repo(temp_repo, 0);
 }
 
-void ui_filter_by_not_expired_after_date(UI* ui) {
+static void ui_filter_by_not_expired_after_date(UI* ui) {
     char date[11];
     printf("give the date: ");
-    fgets(date, 12, stdin);
-    fgets(date, 12, stdin);
-    date[strlen(date) - 1] = '\0';
-    if (!validate_date(date)) {
-        printf("\ninvalid date\n");
+    scanf("%10s", date);
+    MaterialRepo* temp_repo = filter_by_not_expired(date, ui->ctrl);
+    if (temp_repo->cap == 0) {
+        printf("\ninvalid input\n");
         return;
     }
-    Controller* temp_ctrl = filter_by_not_expired(date, ui->ctrl);
-    repo_to_string(temp_ctrl->repo);
-    destroy_repo(temp_ctrl->repo, 0);
-    destroy_controller(temp_ctrl);
+    repo_to_string(temp_repo);
+    destroy_repo(temp_repo, 0);
 }
 
-void ui_filter_by_substring_sort_by_supplier(UI* ui, int reverse) {
+static void ui_filter_by_substring_sort_by_supplier(UI* ui, int reverse) {
     char substr[50];
     printf("give the string: ");
-    fgets(substr, 50, stdin);
-    fgets(substr, 50, stdin);
+    getchar();
+    fgets(substr, 49, stdin);
     substr[strlen(substr) - 1] = '\0';
-    Controller* temp_ctrl = filter_by_name_substring(substr, ui->ctrl);
-    sort_by_supplier(temp_ctrl, reverse);
-    repo_to_string(temp_ctrl->repo);
-    destroy_repo(temp_ctrl->repo, 0);
-    destroy_controller(temp_ctrl);
+    MaterialRepo* temp_repo = filter_by_name_substring_sort_by_supplier(substr, reverse, ui->ctrl);
+    repo_to_string(temp_repo);
+    destroy_repo(temp_repo, 0);
 }
 
-void ui_filter_by_supplier_sort_by_quantity(UI* ui, int reverse) {
-    char supplier[50];
+static void ui_filter_by_supplier_sort_by_quantity(UI* ui, int reverse) {
+    char supplier[50], quantity[10];
     printf("give the supplier: ");
-    fgets(supplier, 50, stdin);
-    fgets(supplier, 50, stdin);
-    supplier[strlen(supplier) - 1] = '\0';
+    getchar();
+    fgets(supplier, 49, stdin);
     printf("give the desired quantity: ");
-    char quantity[10];
-    scanf("%s", quantity);
-    Controller* temp_ctrl1 = filter_by_supplier(supplier, ui->ctrl);
-    Controller* temp_ctrl2 = filter_by_quantity(quantity, temp_ctrl1);
-    sort_by_quantity(temp_ctrl2, reverse);
-    repo_to_string(temp_ctrl2->repo);
-    destroy_repo(temp_ctrl1->repo, 0);
-    destroy_repo(temp_ctrl2->repo, 0);
-    destroy_controller(temp_ctrl1);
-    destroy_controller(temp_ctrl2);
+    scanf("%9s", quantity);
+    supplier[strlen(supplier) - 1] = '\0';
+    MaterialRepo* temp_repo = filter_by_supplier_sort_by_quantity(supplier, quantity, reverse, ui->ctrl);
+    repo_to_string(temp_repo);
+    destroy_repo(temp_repo, 0);
 }
 
 void start_ui(UI* ui) {

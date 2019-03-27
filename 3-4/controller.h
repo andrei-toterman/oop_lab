@@ -66,55 +66,40 @@ output: 1 if the Material has been found and removed, 0 if not
 int ctrl_remove(char id[], Controller* ctrl);
 
 /*
-creates a new Controller from the Materials from a given Controller's repo that have a given string in their name
+creates a new MaterialRepo from the Materials from a given Controller's repo that
+have a given string in their name and that surpassed a given date
 input: substr: substring that must be in the name
+       date: string date to compare with in the form "dd.mm.yyyy"
        ctrl: pointer to Controller from which to take Materials
-output: the newly created Controller with the Materials which satisfied the filter
+output: the newly created MaterialRepo with the Materials which satisfied the filter
 */
-Controller* filter_by_name_substring(char substr[], Controller* ctrl);
+MaterialRepo* filter_by_name_substring_and_expired(char substr[], char date[], Controller* ctrl);
 /*
-creates a new Controller from the Materials from a given Controller's repo that surpassed a given date
+creates a new MaterialRepo from the Materials from a given Controller's repo that have not surpassed a given date
 input: date: date with which to compare
        ctrl: pointer to Controller from which to take Materials
-output: the newly created Controller with the Materials which satisfied the filter
+output: the newly created MaterialRepo with the Materials which satisfied the filter
 */
-Controller* filter_by_expired(char date[], Controller* ctrl);
+MaterialRepo* filter_by_not_expired(char date[], Controller* ctrl);
 /*
-creates a new Controller from the Materials from a given Controller's repo that have not surpassed a given date
-input: date: date with which to compare
+creates a new MaterialRepo from the Materials from a given Controller's repo that
+are from the same supplier, have less than a given quantity and are sorted by quantity
+input: supplier: supplier that the Materials must have
+       quantity: string of integer of the quantity to compare with
+       reverse: 0 if the sorting is ascending, 1 if it is descending
        ctrl: pointer to Controller from which to take Materials
-output: the newly created Controller with the Materials which satisfied the filter
+output: the newly created MaterialRepo with the Materials which satisfied the filter
 */
-Controller* filter_by_not_expired(char date[], Controller* ctrl);
+MaterialRepo* filter_by_supplier_sort_by_quantity(char supplier[], char quantity[], int reverse, Controller* ctrl);
 /*
-creates a new Controller from the Materials from a given Controller's repo that have the same supplier
-input: supplier: supplier to search for
+creates a new MaterialRepo from the Materials from a given Controller's repo that
+have a given substring in their name and are sorted by supplier
+input: substr: substring that must be in the name
+       reverse: 0 if the sorting is ascending, 1 if it is descending
        ctrl: pointer to Controller from which to take Materials
-output: the newly created Controller with the Materials which satisfied the filter
+output: the newly created MaterialRepo with the Materials which satisfied the filter
 */
-Controller* filter_by_supplier(char supplier[], Controller* ctrl);
-/*
-creates a new Controller from the Materials from a given Controller's repo that have the quantity less than a given one
-input: quantity: quantity with which to compare
-       ctrl: pointer to Controller from which to take Materials
-output: the newly created Controller with the Materials which satisfied the filter
-*/
-Controller* filter_by_quantity(char quantity[], Controller* ctrl);
-
-/*
-sorts the Materials from a given repository based on their quantity
-input: repo: pointer to the MaterialRepo which must be sorted
-       reverse: 0 for ascending order, 1 for descending order
-output: -
-*/
-void sort_by_quantity(Controller* ctrl, int reverse);
-/*
-sorts the Materials from a given repository based on their supplier
-input: repo: pointer to the MaterialRepo which must be sorted
-       reverse: 0 for ascending order, 1 for descending order
-output: -
-*/
-void sort_by_supplier(Controller* ctrl, int reverse);
+MaterialRepo* filter_by_name_substring_sort_by_supplier(char substr[], int reverse, Controller* ctrl);
 
 /*
 adds a given Operation to a given Controller's operation stack
@@ -147,12 +132,6 @@ output: -
 */
 void redo(Controller* ctrl);
 
-/*
-checks if a given string date is valid "dd.mm.yyyy"
-input: string to check
-output: 1 if it is valid, 0 if not
-*/
-int validate_date(char date_string[]);
 /*
 executes a series of tests for the methods of the Controller
 input: -
