@@ -22,5 +22,4 @@ void destroy_operation(Operation* operation) {
     destroy_material(operation->material);
     destroy_material(operation->new_material);
     free(operation);
-    operation = NULL;
 }

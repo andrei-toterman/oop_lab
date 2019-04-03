@@ -25,11 +25,11 @@ static int validate_date(char date_string[]) {
     return 1;
 }
 
-int validate_material(Material* material) {
+static int validate_material(Material* material) {
     return strlen(material->name) > 0 &&
            strlen(material->supplier) > 0 &&
            validate_date(material->exp_date_string) &&
-           material->quantity >= 0;
+           material->quantity > 0;
 }
 
 int ctrl_find(char id[], Controller* ctrl) {
@@ -387,6 +387,7 @@ static void test_undo_redo() {
     ctrl_add("d", "d", "4.4.4", 4, ctrl);
     assert(ctrl->oper_cap == 10);
     assert(ctrl->oper_len == 6);
+    assert(can_undo(ctrl));
     undo(ctrl);
     assert(ctrl_find("d_d_4.4.4", ctrl) == 0);
     undo(ctrl);
@@ -400,6 +401,8 @@ static void test_undo_redo() {
     undo(ctrl);
     assert(ctrl->repo->len == 0);
     assert(ctrl->oper_len == 0);
+    assert(!can_undo(ctrl));
+    assert(can_redo(ctrl));
     redo(ctrl);
     assert(ctrl_find("a_a_1.1.1", ctrl) == 0);
     redo(ctrl);
