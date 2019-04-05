@@ -11,8 +11,7 @@ class Movie {
         std::string id;
     public:
         Movie();
-        Movie(const std::string& id);
-        Movie(const std::string& title, const std::string& genre, int year, int likes, const std::string& trailer);
+        Movie(const std::string& _title, const std::string& _genre, int _year, int _likes, const std::string& _trailer);
         Movie(const Movie& other);
         ~Movie();
 
@@ -21,16 +20,13 @@ class Movie {
         int get_year() const { return this->year; }
         int get_likes() const { return this->likes; }
         std::string get_trailer() const { return this->trailer; }
-
-        void set_title(const std::string& _title);
-        void set_genre(const std::string& _genre);
-        void set_year(int _year);
-        void set_likes(int _likes);
-        void set_trailer(const std::string& _trailer);
+        std::string get_id() const { return this->id; }
 
         Movie& operator=(const Movie& other);
         bool operator==(const Movie& other);
         std::string to_string();
 
+
+        void add_like();
         void play();
 };
