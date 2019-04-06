@@ -18,10 +18,14 @@ class MovieRepo {
         void remove(int index);
         void update(int index, const Movie& new_movie);
 
-        MovieRepo& filter_by(bool (*filter)(const Movie&));
-
-        void play();
-        std::string to_string();
+        template <typename Func>
+        MovieRepo filter_by(Func filter) {
+            MovieRepo filtered_repo;
+            for (Movie movie : this->get_movies())
+                if (filter(movie))
+                    filtered_repo.add(movie);
+            return filtered_repo;
+        }
         void populate();
 
         MovieRepo& operator=(const MovieRepo& other);

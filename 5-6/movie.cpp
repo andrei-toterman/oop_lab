@@ -42,10 +42,9 @@ bool Movie::operator==(const Movie& other) {
     return this->id.compare(other.id) == 0;
 }
 
-std::string Movie::to_string() {
-    std::ostringstream str;
-    str << std::endl << this->title << " - " << this->year << "\nGenre: " << this->genre << ",\t" << this->likes << " likes" << std::endl;
-    return str.str();
+std::ostream& operator<<(std::ostream& os, Movie& movie) {
+    os << std::endl << movie.title << " - " << movie.year << "\nGenre: " << movie.genre << ",\t" << movie.likes << " likes" << std::endl;
+    return os;
 }
 
 void Movie::play() {

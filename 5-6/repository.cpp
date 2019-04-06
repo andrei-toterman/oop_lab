@@ -28,14 +28,6 @@ void MovieRepo::update(int index, const Movie& new_movie) {
     this->movies[index] = new_movie;
 }
 
-std::string MovieRepo::to_string() {
-    if (this->size() == 0) return "\nno movies found\n";
-    std::string str = "\ncurrent movies in the database:\n";
-    for (Movie m : this->movies)
-        str += m.to_string();
-    return str;
-}
-
 void MovieRepo::populate() {
     this->add(Movie{ "Bird Box", "horror", 2018, 123, "https://www.imdb.com/title/tt2737304/videoplayer/vi2966010393" });
     this->add(Movie{ "It", "horror", 2017, 321, "https://www.imdb.com/title/tt1396484/videoplayer/vi1396095257" });

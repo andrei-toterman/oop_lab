@@ -24,7 +24,7 @@ class Movie {
 
         Movie& operator=(const Movie& other);
         bool operator==(const Movie& other);
-        std::string to_string();
+        friend std::ostream& operator<<(std::ostream& os, Movie& movie);
 
 
         void add_like();

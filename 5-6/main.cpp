@@ -11,7 +11,8 @@ int main() {
 
     MovieRepo repo;
     repo.populate();
-    Controller ctrl{ repo };
+    MovieRepo watchlist;
+    Controller ctrl{ repo, watchlist };
     UI ui{ ctrl };
 
     ui.start();
