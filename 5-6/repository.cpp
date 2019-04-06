@@ -1,6 +1,13 @@
 ﻿#include "repository.h"
 #include <assert.h>
 
+int MovieRepo::find_genre(std::string genre) {
+    for (int i = 0; i < this->genres.size(); i++)
+        if (genre == this->genres[i])
+            return i;
+    return -1;
+}
+
 MovieRepo::MovieRepo() {}
 
 MovieRepo::MovieRepo(const MovieRepo& other) {
@@ -18,14 +25,21 @@ int MovieRepo::find(std::string id) {
 
 void MovieRepo::add(const Movie& movie) {
     this->movies + movie;
+    if (this->find_genre(movie.get_genre()) == -1)
+        this->genres.add(movie.get_genre());
 }
 
 void MovieRepo::remove(int index) {
     this->movies.remove(index);
+    int genre_index = this->find_genre(this->movies[index].get_genre());
+    if (genre_index == -1)
+        this->genres.remove(genre_index);
 }
 
 void MovieRepo::update(int index, const Movie& new_movie) {
     this->movies[index] = new_movie;
+    if (this->find_genre(new_movie.get_genre()) == -1)
+        this->genres.add(new_movie.get_genre());
 }
 
 void MovieRepo::populate() {

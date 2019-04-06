@@ -1,6 +1,4 @@
 ﻿#include <iostream>
-#include "repository.h"
-#include "controller.h"
 #include "ui.h"
 
 using namespace std;

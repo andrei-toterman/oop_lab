@@ -34,7 +34,10 @@ void UI::print_repo() {
 
 void UI::browse_by_genre() {
     string genre;
-    cout << "give the genre you would like to browse: ";
+    cout << "\ncurrent genres are:\n";
+    for (string g : this->ctrl.get_repo().get_genres())
+        cout << g << endl;
+    cout << "\ngive the genre you would like to browse: ";
     getline(cin, genre);
 
     MovieRepo temp_repo { this->ctrl.get_repo().filter_by([genre](const Movie& movie) -> bool { return movie.get_genre() == genre; }) };

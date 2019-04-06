@@ -5,12 +5,15 @@
 class MovieRepo {
     private:
         DynamicVector<Movie> movies;
+        DynamicVector<std::string> genres;
+        int find_genre(std::string genre);
     public:
         MovieRepo();
         MovieRepo(const MovieRepo& other);
         ~MovieRepo();
 
         DynamicVector<Movie>& get_movies() { return this->movies; }
+        DynamicVector<std::string>& get_genres() { return this->genres; }
         int size() { return this->movies.size(); }
 
         int find(std::string id);
