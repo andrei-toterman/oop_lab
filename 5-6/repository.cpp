@@ -1,22 +1,14 @@
 ﻿#include "repository.h"
-#include <assert.h>
+#include <cassert>
 
-int MovieRepo::find_genre(std::string genre) {
+int MovieRepo::find_genre(const std::string& genre) {
     for (int i = 0; i < this->genres.size(); i++)
         if (genre == this->genres[i])
             return i;
     return -1;
 }
 
-MovieRepo::MovieRepo() {}
-
-MovieRepo::MovieRepo(const MovieRepo& other) {
-    this->movies = other.movies;
-}
-
-MovieRepo::~MovieRepo() {}
-
-int MovieRepo::find(std::string id) {
+int MovieRepo::find(const std::string& id) {
     for (int i = 0; i < this->size(); i++)
         if (id == this->movies[i].get_id())
             return i;
@@ -30,9 +22,9 @@ void MovieRepo::add(const Movie& movie) {
 }
 
 void MovieRepo::remove(int index) {
-    this->movies.remove(index);
     int genre_index = this->find_genre(this->movies[index].get_genre());
-    if (genre_index == -1)
+    this->movies.remove(index);
+    if (genre_index >= 0)
         this->genres.remove(genre_index);
 }
 
@@ -55,9 +47,10 @@ void MovieRepo::populate() {
     this->add(Movie{ "Pulp Fiction", "drama", 1994, 80085, "https://www.imdb.com/title/tt0110912/videoplayer/vi2620371481" });
 }
 
-MovieRepo&MovieRepo::operator=(const MovieRepo& other) {
+MovieRepo& MovieRepo::operator=(const MovieRepo& other) {
     if (this == & other) return *this;
     this->movies = other.movies;
+    this->genres = other.genres;
     return *this;
 }
 
@@ -69,8 +62,9 @@ static void test_add() {
     MovieRepo repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
     repo.add(Movie("d", "e", 3, 4, "f"));
-    repo.add(Movie("g", "h", 5, 6, "i"));
+    repo.add(Movie("g", "e", 5, 6, "i"));
     assert(repo.get_movies().size() == 3);
+    assert(repo.get_genres().size() == 2);
     repo.add(Movie("j", "k", 7, 8, "l"));
     assert(repo.get_movies().capacity() == 6);
 }
@@ -81,6 +75,7 @@ static void test_remove() {
     repo.add(Movie("d", "e", 3, 4, "f"));
     repo.remove(0);
     assert(repo.size() == 1);
+    assert(repo.get_genres().size() == 1);
     try {
         repo.remove(1);
         assert(false);
@@ -112,10 +107,29 @@ static void test_find() {
 static void test_assign_operator() {
     MovieRepo repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
-    MovieRepo new_repo{ repo };
+    MovieRepo new_repo;
+    new_repo = repo;
     assert(new_repo.size() == 1);
     assert(new_repo.get_movies().capacity() == 3);
     assert(new_repo[0] == repo[0]);
+}
+
+static void test_update() {
+    MovieRepo repo;
+    repo.add(Movie("a", "b", 1, 2, "c"));
+    repo.update(0, Movie{"c", "d", 2, 3, "e"});
+    assert(repo.find("c_2") >= 0);
+    assert(repo.find("a_1") == -1);
+}
+
+static void test_filter() {
+    MovieRepo repo;
+    repo.populate();
+    MovieRepo filtered{ repo.filter_by([](Movie m){ return m.get_genre() == "action"; }) };
+    assert(filtered.size() == 3);
+    assert(filtered[0].get_id() == "Avengers_2019");
+    assert(filtered[1].get_id() == "Avengers_2018");
+    assert(filtered[2].get_id() == "Batman_2008");
 }
 
 void test_repo() {
@@ -124,4 +138,6 @@ void test_repo() {
     test_index_operator();
     test_assign_operator();
     test_find();
+    test_update();
+    test_filter();
 }

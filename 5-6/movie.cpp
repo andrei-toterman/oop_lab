@@ -1,28 +1,14 @@
 ﻿#include "movie.h"
-#include <sstream>
-#include <stdexcept>
+#include <ostream>
 
-Movie::Movie() {}
-
-Movie::Movie(const std::string& _title, const std::string& _genre, int _year, int _likes, const std::string& _trailer) {
-    this->title = _title;
-    this->genre = _genre;
-    this->year = _year;
-    this->likes = _likes;
-    this->trailer = _trailer;
-    this->id = this->title + "_" + std::to_string(this->year);
-}
-
-Movie::Movie(const Movie& other) {
-    this->title = other.title;
-    this->genre = other.genre;
-    this->year = other.year;
-    this->likes = other.likes;
-    this->trailer = other.trailer;
-    this->id = other.id;
-}
-
-Movie::~Movie() {}
+Movie::Movie(const string& _title, const string& _genre, int _year, int _likes, const string& _trailer) :
+    title{ _title },
+    genre{ _genre },
+    year{ _year },
+    likes{ _likes },
+    trailer{ _trailer },
+    id{ this->title + "_" + std::to_string(this->year) }
+{}
 
 void Movie::add_like() {
     this->likes++;
@@ -39,11 +25,11 @@ Movie& Movie::operator=(const Movie& other) {
 }
 
 bool Movie::operator==(const Movie& other) {
-    return this->id.compare(other.id) == 0;
+    return this->id == other.id;
 }
 
 std::ostream& operator<<(std::ostream& os, Movie& movie) {
-    os << std::endl << movie.title << " - " << movie.year << "\nGenre: " << movie.genre << ",\t" << movie.likes << " likes" << std::endl;
+    os << movie.title << " - " << movie.year << "\nGenre: " << movie.genre << ",\t" << movie.likes << " likes" << std::endl;
     return os;
 }
 
