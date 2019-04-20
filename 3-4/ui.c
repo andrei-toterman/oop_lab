@@ -5,11 +5,12 @@
 #include <time.h>
 
 UI* create_ui(Controller* controller) {
-    UI* ui = (UI*) malloc(sizeof(UI));
-    ui->ctrl = controller;
-    time_t now = time(0);
+    UI* ui                = (UI*) malloc(sizeof(UI));
+    ui->ctrl              = controller;
+    time_t     now        = time(0);
     struct tm* local_time = localtime(&now);
-    sprintf(ui->today, "%d.%d.%d", local_time->tm_mday, local_time->tm_mon + 1, local_time->tm_year + 1900);
+    sprintf(ui->today, "%d.%d.%d", local_time->tm_mday, local_time->tm_mon + 1,
+            local_time->tm_year + 1900);
     return ui;
 }
 
@@ -19,28 +20,23 @@ void destroy_ui(UI* ui) {
 }
 
 static void print_menu(UI* ui) {
-    char undo[50];
-    char redo[50];
+    char _undo[50];
+    char _redo[50];
 
-    if (!can_undo(ui->ctrl)) strcpy(undo, "no undo disponible");
+    if (!can_undo(ui->ctrl))
+        strcpy(_undo, "no undo disponible");
     else {
         Material* undo_mat = ui->ctrl->operation_stack[ui->ctrl->oper_len - 1]->material;
-        sprintf(undo, "%s, %s, %s, %s, %d",
-                ui->ctrl->operation_stack[ui->ctrl->oper_len - 1]->type,
-                undo_mat->name,
-                undo_mat->supplier,
-                undo_mat->exp_date_string,
-                undo_mat->quantity);
+        sprintf(_undo, "%s, %s, %s, %s, %d",
+                ui->ctrl->operation_stack[ui->ctrl->oper_len - 1]->type, undo_mat->name,
+                undo_mat->supplier, undo_mat->exp_date_string, undo_mat->quantity);
     }
-    if (!can_redo(ui->ctrl)) strcpy(redo, "no redo disponible");
+    if (!can_redo(ui->ctrl))
+        strcpy(_redo, "no redo disponible");
     else {
         Material* redo_mat = ui->ctrl->operation_stack[ui->ctrl->oper_len]->material;
-        sprintf(redo, "%s, %s, %s, %s, %d",
-                ui->ctrl->operation_stack[ui->ctrl->oper_len]->type,
-                redo_mat->name,
-                redo_mat->supplier,
-                redo_mat->exp_date_string,
-                redo_mat->quantity);
+        sprintf(_redo, "%s, %s, %s, %s, %d", ui->ctrl->operation_stack[ui->ctrl->oper_len]->type,
+                redo_mat->name, redo_mat->supplier, redo_mat->exp_date_string, redo_mat->quantity);
     }
 
     printf("\n1. print all the materials"
@@ -51,7 +47,8 @@ static void print_menu(UI* ui) {
            "\n6. sort materials"
            "\n7. undo: %s"
            "\n8. redo: %s"
-           "\n0. exit", undo, redo);
+           "\n0. exit",
+           _undo, _redo);
 }
 
 static int ui_add(UI* ui) {

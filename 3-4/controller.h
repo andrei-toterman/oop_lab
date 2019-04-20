@@ -11,9 +11,9 @@ operation_stack: pointer to a list of pointers to Operations
 */
 typedef struct {
     MaterialRepo* repo;
-    int oper_len;
-    int oper_cap;
-    Operation** operation_stack;
+    int           oper_len;
+    int           oper_cap;
+    Operation**   operation_stack;
 } Controller;
 
 /*

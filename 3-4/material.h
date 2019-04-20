@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
 defines an object that stores information about a material in a bakery
@@ -12,8 +12,8 @@ id: identifier defined by the name, supplier and expiration date of the material
 typedef struct {
     char* name;
     char* supplier;
-    int quantity;
-    int exp_date;
+    int   quantity;
+    int   exp_date;
     char* exp_date_string;
     char* id;
 } Material;

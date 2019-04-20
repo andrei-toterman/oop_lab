@@ -180,14 +180,14 @@ void test_repo() {
 }
 
 void populate_repo(MaterialRepo* repo) {
-    repo_add(create_material("Chocolate",   "Hershey",     "15.2.2019",  10), repo);
-    repo_add(create_material("Milk",        "Napolact",    "20.2.2019",   5), repo);
-    repo_add(create_material("Eggs",        "Chicken",     "3.4.2018",   13), repo);
-    repo_add(create_material("Yeast",       "Bakersville", "10.1.2020",  10), repo);
-    repo_add(create_material("Flour",       "Bakersville", "14.12.2018", 23), repo);
-    repo_add(create_material("Sugar",       "Crystal",     "13.10.2019", 30), repo);
-    repo_add(create_material("Eggs",        "Chicken",     "3.1.2019",   16), repo);
-    repo_add(create_material("Baking soda", "Bakersville", "10.1.2020",  13), repo);
-    repo_add(create_material("Vanilla",     "Dr.Oetker",   "20.9.2020",  25), repo);
-    repo_add(create_material("Cinnamon",    "Dr.Oetker",   "3.3.2021",   40), repo);
+    repo_add(create_material("Chocolate", "Hershey", "15.2.2019", 10), repo);
+    repo_add(create_material("Milk", "Napolact", "20.2.2019", 5), repo);
+    repo_add(create_material("Eggs", "Chicken", "3.4.2018", 13), repo);
+    repo_add(create_material("Yeast", "Bakersville", "10.1.2020", 10), repo);
+    repo_add(create_material("Flour", "Bakersville", "14.12.2018", 23), repo);
+    repo_add(create_material("Sugar", "Crystal", "13.10.2019", 30), repo);
+    repo_add(create_material("Eggs", "Chicken", "3.1.2019", 16), repo);
+    repo_add(create_material("Baking soda", "Bakersville", "10.1.2020", 13), repo);
+    repo_add(create_material("Vanilla", "Dr.Oetker", "20.9.2020", 25), repo);
+    repo_add(create_material("Cinnamon", "Dr.Oetker", "3.3.2021", 40), repo);
 }

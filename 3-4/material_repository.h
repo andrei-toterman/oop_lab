@@ -9,8 +9,8 @@ cap: the current capacity of the list
 */
 typedef struct {
     Material** materials;
-    int len;
-    int cap;
+    int        len;
+    int        cap;
 } MaterialRepo;
 
 /*

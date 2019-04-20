@@ -3,8 +3,7 @@
 
 using namespace std;
 
-UI::UI(Controller& _ctrl) : ctrl{ _ctrl } {}
-
+UI::UI(Controller& _ctrl) : ctrl{_ctrl} {}
 
 void UI::print_admin_menu() {
     cout << "\n1. print all the movies"
@@ -26,20 +25,19 @@ void UI::print_db() {
         cout << "\nno movies found\n";
         return;
     }
-    cout <<  "\ncurrent movies in the database:\n";
-    for (Movie movie : this->ctrl.get_database().get_movies())
-        cout << movie;
+    cout << "\ncurrent movies in the database:\n";
+    for (Movie& movie : this->ctrl.get_database().get_movies()) cout << endl << movie;
 }
 
 void UI::browse_by_genre() {
     string genre;
     cout << "\ncurrent genres are:\n";
-    for (string g : this->ctrl.get_database().get_genres())
-        cout << g << endl;
+    for (const string& g : this->ctrl.get_database().get_genres()) cout << g << endl;
     cout << "\ngive the genre you would like to browse: ";
     getline(cin, genre);
 
-    MovieRepo temp_repo { this->ctrl.get_database().filter_by([genre](const Movie& movie) -> bool { return movie.get_genre() == genre; }) };
+    MovieRepo temp_repo{this->ctrl.get_database().filter_by(
+        [genre](const Movie& movie) -> bool { return movie.get_genre() == genre; })};
 
     if (temp_repo.size() == 0) {
         cout << "\nno movies found\n";
@@ -56,9 +54,7 @@ void UI::browse_by_genre() {
             try {
                 this->ctrl.watchlist_add(*current_movie);
                 cout << "\ngreat! movie has been added to your watchlist\n";
-            } catch (std::exception& err) {
-                cout << "\nerror: " << err.what() << endl;
-            }
+            } catch (std::exception& err) { cout << "\nerror: " << err.what() << endl; }
         }
         if (!this->yes_no("continue?")) break;
         if (++current_movie == temp_repo.get_movies().end()) {
@@ -77,9 +73,7 @@ void UI::watchlist_remove() {
 
     try {
         this->ctrl.watchlist_remove(id, liked);
-    } catch (std::exception& err) {
-        cout << "\nerror: " << err.what() << endl;
-    }
+    } catch (std::exception& err) { cout << "\nerror: " << err.what() << endl; }
 }
 
 void UI::print_watchlist() {
@@ -87,9 +81,8 @@ void UI::print_watchlist() {
         cout << "\nno movies found\n";
         return;
     }
-    cout <<  "\ncurrent movies in your watchlist:\n";
-    for (Movie movie : this->ctrl.get_watchlist().get_movies())
-        cout << movie;
+    cout << "\ncurrent movies in your watchlist:\n";
+    for (Movie& movie : this->ctrl.get_watchlist().get_movies()) cout << endl << movie;
 }
 
 bool UI::yes_no(const string& msg) {
@@ -99,15 +92,18 @@ bool UI::yes_no(const string& msg) {
     while (true) {
         cout << "yes/no: ";
         getline(cin, answer);
-    if (answer == "yes") return true;
-    else if (answer == "no") return false;
-    else cout << "\ninvalid answer\n";
+        if (answer == "yes")
+            return true;
+        else if (answer == "no")
+            return false;
+        else
+            cout << "\ninvalid answer\n";
     }
 }
 
 void UI::db_add() {
     string title, genre, trailer;
-    int year, likes;
+    int    year, likes;
 
     cout << "give the title: ";
     getline(cin, title);
@@ -118,7 +114,7 @@ void UI::db_add() {
     cout << "give the number of likes: ";
     cin >> likes;
     getchar();
-    cout << "give the trailer: " << flush;
+    cout << "give the trailer: ";
     getline(cin, trailer);
 
     this->ctrl.database_add(title, genre, year, likes, trailer);

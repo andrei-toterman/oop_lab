@@ -1,7 +1,4 @@
-﻿#include "material.h"
-#include "material_repository.h"
-#include "controller.h"
-#include "ui.h"
+﻿#include "ui.h"
 
 int main() {
     test_material();
@@ -9,10 +6,10 @@ int main() {
     test_controller();
 
     MaterialRepo* repo = create_material_repo(10);
-    populate_repo(repo);
-    Controller* ctrl = create_controller(repo);
-    UI* ui = create_ui(ctrl);
+    Controller*   ctrl = create_controller(repo);
+    UI*           ui   = create_ui(ctrl);
 
+    populate_repo(repo);
     start_ui(ui);
 
     destroy_repo(repo, 1);

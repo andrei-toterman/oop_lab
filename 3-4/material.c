@@ -5,7 +5,7 @@
 
 int date_string_to_date_int(char date_string[]) {
     if (!strcmp(date_string, "")) return 0;
-    int date_int = 0;
+    int  date_int = 0;
     char temp_string[11];
     strcpy(temp_string, date_string);
     char* temp = strtok(temp_string, ".");
@@ -23,8 +23,8 @@ int date_string_to_date_int(char date_string[]) {
 Material* create_material(char name[], char supplier[], char exp_date_string[], int quantity) {
     Material* material = (Material*) malloc(sizeof(Material));
 
-    material->name = (char*) malloc(strlen(name) + 1);
-    material->supplier = (char*) malloc(strlen(supplier) + 1);
+    material->name            = (char*) malloc(strlen(name) + 1);
+    material->supplier        = (char*) malloc(strlen(supplier) + 1);
     material->exp_date_string = (char*) malloc(11);
 
     strcpy(material->name, name);
@@ -34,7 +34,8 @@ Material* create_material(char name[], char supplier[], char exp_date_string[], 
     material->exp_date = date_string_to_date_int(exp_date_string);
     material->quantity = quantity;
 
-    material->id = (char*) malloc(strlen(material->name) + strlen(material->supplier) + strlen(material->exp_date_string) + 3);
+    material->id = (char*) malloc(strlen(material->name) + strlen(material->supplier) +
+                                  strlen(material->exp_date_string) + 3);
     strcpy(material->id, material->name);
     strcat(material->id, "_");
     strcat(material->id, material->supplier);
@@ -51,13 +52,13 @@ void destroy_material(Material* material) {
     free(material->exp_date_string);
     free(material->id);
     free(material);
-    material = 0;
 }
 
 void overwrite_material(Material* dest_material, Material* source_material) {
     dest_material->name = (char*) realloc(dest_material->name, strlen(source_material->name) + 1);
     strcpy(dest_material->name, source_material->name);
-    dest_material->supplier = (char*) realloc(dest_material->supplier, strlen(source_material->supplier) + 1);
+    dest_material->supplier =
+        (char*) realloc(dest_material->supplier, strlen(source_material->supplier) + 1);
     strcpy(dest_material->supplier, source_material->supplier);
     dest_material->exp_date_string = (char*) realloc(dest_material->exp_date_string, 11);
     strcpy(dest_material->exp_date_string, source_material->exp_date_string);
