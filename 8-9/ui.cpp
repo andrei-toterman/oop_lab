@@ -1,4 +1,5 @@
 ﻿#include "ui.h"
+#include "exceptions.h"
 #include <iostream>
 
 using namespace std;
@@ -26,7 +27,8 @@ void UI::print_db() {
         return;
     }
     cout << "\ncurrent movies in the database:\n";
-    for (Movie movie : this->ctrl.get_database().get_movies()) cout << endl << movie << endl;
+    for (Movie movie : this->ctrl.get_database().get_movies())
+        cout << endl << movie.to_string() << endl;
 }
 
 void UI::browse_by_genre() {
@@ -46,22 +48,21 @@ void UI::browse_by_genre() {
 
     auto current_movie = temp_repo.get_movies().begin();
 
-    while (true) {
-        cout << endl << *current_movie << endl;
+    do {
+        cout << endl << current_movie->to_string() << endl;
         current_movie->play();
         bool liked = this->yes_no("did you like the trailer?");
         if (liked) {
             try {
                 this->ctrl.watchlist_add(*current_movie);
                 cout << "\ngreat! movie has been added to your watchlist";
-            } catch (std::exception& err) { cout << "\nerror: " << err.what() << endl; }
+            } catch (RepoException& err) { cout << "\nerror: " << err.what() << endl; }
         }
-        if (!this->yes_no("\ncontinue?")) break;
         if (++current_movie == temp_repo.get_movies().end()) {
-            cout << "\nstarting from the beginning again\n";
+            cout << "\n\nstarting from the beginning of the list again";
             current_movie = temp_repo.get_movies().begin();
         }
-    }
+    } while (this->yes_no("\ncontinue?"));
 }
 
 void UI::watchlist_remove() {
@@ -73,7 +74,7 @@ void UI::watchlist_remove() {
 
     try {
         this->ctrl.watchlist_remove(id, liked);
-    } catch (std::exception& err) { cout << "\nerror: " << err.what() << endl; }
+    } catch (RepoException& err) { cout << "\nerror: " << err.what() << endl; }
 }
 
 void UI::print_watchlist() {
@@ -82,7 +83,8 @@ void UI::print_watchlist() {
         return;
     }
     cout << "\ncurrent movies in your watchlist:\n";
-    for (Movie movie : this->ctrl.get_watchlist().get_movies()) cout << endl << movie << endl;
+    for (Movie movie : this->ctrl.get_watchlist().get_movies())
+        cout << endl << movie.to_string() << endl;
 }
 
 bool UI::yes_no(const string& msg) {
@@ -117,7 +119,12 @@ void UI::db_add() {
     cout << "give the trailer: " << flush;
     getline(cin, trailer);
 
-    this->ctrl.database_add(title, genre, year, likes, trailer);
+    try {
+        this->ctrl.database_add(title, genre, year, likes, trailer);
+        this->print_db();
+    } catch (MovieException& err) {
+        cout << "\nerror: " << err.what() << endl;
+    } catch (RepoException& err) { cout << "\nerror: " << err.what() << endl; }
 }
 
 void UI::db_remove() {
@@ -126,7 +133,10 @@ void UI::db_remove() {
     cout << "id (title_year): ";
     getline(cin, id);
 
-    this->ctrl.database_remove(id);
+    try {
+        this->ctrl.database_remove(id);
+        this->print_db();
+    } catch (RepoException& err) { cout << "\nerror: " << err.what() << endl; }
 }
 
 void UI::db_update() {
@@ -148,7 +158,12 @@ void UI::db_update() {
     cout << "give the trailer: ";
     getline(cin, trailer);
 
-    this->ctrl.database_update(id, title, genre, year, likes, trailer);
+    try {
+        this->ctrl.database_update(id, title, genre, year, likes, trailer);
+        this->print_db();
+    } catch (MovieException& err) {
+        cout << "\nerror: " << err.what() << endl;
+    } catch (RepoException& err) { cout << "\nerror: " << err.what() << endl; }
 }
 
 void UI::start() {
@@ -177,33 +192,15 @@ void UI::start() {
                             break;
                         }
                         case 2: {
-                            try {
-                                this->db_add();
-                            } catch (std::exception& err) {
-                                cout << "\nerror: " << err.what() << endl;
-                                break;
-                            }
-                            this->print_db();
+                            this->db_add();
                             break;
                         }
                         case 3: {
-                            try {
-                                this->db_remove();
-                            } catch (std::exception& err) {
-                                cout << "\nerror: " << err.what() << endl;
-                                break;
-                            }
-                            this->print_db();
+                            this->db_remove();
                             break;
                         }
                         case 4: {
-                            try {
-                                this->db_update();
-                            } catch (std::exception& err) {
-                                cout << "\nerror: " << err.what() << endl;
-                                break;
-                            }
-                            this->print_db();
+                            this->db_update();
                             break;
                         }
                         default: cout << "\ninvalid command\n";

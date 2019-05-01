@@ -8,14 +8,18 @@ class MovieRepo {
     private:
     vector<Movie>  movies;
     vector<string> genres;
+    string         file;
     /*
      * searches for a Movie genre in the genres DynamicVector
      * input: the genre after which to look
      * output: the position at which the Movie genre is found, or -1 if it is not found
      */
     vector<string>::iterator find_genre(const string& genre);
+    void                     read_from_file();
+    void                     write_to_file();
 
     public:
+    explicit MovieRepo(const string& _file);
     MovieRepo()                       = default;
     MovieRepo(const MovieRepo& other) = default;
     ~MovieRepo()                      = default;

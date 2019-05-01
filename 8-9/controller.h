@@ -1,15 +1,12 @@
 ﻿#pragma once
+#include "movievalidator.h"
 #include "repository.h"
 
 class Controller {
     private:
     MovieRepo& database;
     MovieRepo& watchlist;
-    /*
-     * checks if a given movie has valid attributes
-     * throws: invalid_argument if any of the attributes is invalid
-     */
-    void validate_movie(const Movie& movie);
+    MovieValidator validator;
 
     public:
     /*

@@ -5,11 +5,10 @@ int main() {
     test_ctrl();
     test_repo();
 
-    MovieRepo repo;
-    repo.populate();
-    MovieRepo watchlist;
-    Controller ctrl{ repo, watchlist };
-    UI ui{ ctrl };
+    MovieRepo  database{ "database.csv" };
+    MovieRepo  watchlist{ "watchlist.csv" };
+    Controller ctrl{ database, watchlist };
+    UI         ui{ ctrl };
 
     ui.start();
 

@@ -1,41 +1,69 @@
 ﻿#include "repository.h"
+#include "exceptions.h"
 #include <algorithm>
-#include <cassert>
+#include <fstream>
 #include <stdexcept>
-
-vector<Movie>::iterator MovieRepo::find(const string& id) {
-    return std::find_if(this->movies.begin(), this->movies.end(),
-                        [id](const Movie& m) { return m.get_id() == id; });
-}
 
 vector<std::string>::iterator MovieRepo::find_genre(const string& genre) {
     return std::find(this->genres.begin(), this->genres.end(), genre);
 }
 
+void MovieRepo::read_from_file() {
+    std::ifstream f(this->file);
+    Movie         movie;
+    if (!f.is_open()) return;
+    while (!f.eof()) {
+        f >> movie;
+        this->add(movie);
+    }
+    f.close();
+}
+
+void MovieRepo::write_to_file() {
+    std::ofstream f(this->file);
+    if (!f.is_open()) return;
+    for (Movie movie : this->movies) {
+        f << movie;
+        if (!(movie == this->movies[this->movies.size() - 1])) f << '\n';
+    }
+    f.close();
+}
+
+MovieRepo::MovieRepo(const std::string& _file) : file{ _file } { read_from_file(); }
+
+vector<Movie>::iterator MovieRepo::find(const std::string& id) {
+    return std::find_if(this->movies.begin(), this->movies.end(), [id](const Movie& m) {
+        return m.get_id() == id;
+    });
+}
+
 void MovieRepo::add(const Movie& movie) {
     if (this->find(movie.get_id()) != this->movies.end())
-        throw std::invalid_argument("movie already exists");
+        throw RepoException("movie already exists");
     this->movies.push_back(movie);
     if (this->find_genre(movie.get_genre()) == this->genres.end())
         this->genres.push_back(movie.get_genre());
+    write_to_file();
 }
 
 void MovieRepo::remove(const string& id) {
     auto movie_iter = this->find(id);
-    if (movie_iter == this->movies.end()) throw std::out_of_range("movie does not exist");
+    if (movie_iter == this->movies.end()) throw RepoException("movie does not exist");
     auto genre_iter = this->find_genre(movie_iter->get_genre());
     this->movies.erase(movie_iter);
     if (genre_iter != this->genres.end()) this->genres.erase(genre_iter);
+    write_to_file();
 }
 
 void MovieRepo::update(const string& id, const Movie& new_movie) {
     auto movie_iter = this->find(id);
-    if (movie_iter == this->movies.end()) throw std::out_of_range("movie does not exist");
+    if (movie_iter == this->movies.end()) throw RepoException("movie does not exist");
     auto genre_iter = this->find_genre(movie_iter->get_genre());
     if (genre_iter != this->genres.end()) this->genres.erase(genre_iter);
     *movie_iter = new_movie;
     if (this->find_genre(new_movie.get_genre()) == this->genres.end())
         this->genres.push_back(new_movie.get_genre());
+    write_to_file();
 }
 
 void MovieRepo::populate() {
@@ -70,11 +98,12 @@ MovieRepo& MovieRepo::operator=(const MovieRepo& other) {
 
 Movie& MovieRepo::operator[](int index) {
     if (index < 0 || static_cast<unsigned long long>(index) >= this->movies.size())
-        throw std::out_of_range("invalid index");
+        throw RepoException("invalid index");
     return this->movies[static_cast<unsigned long long>(index)];
 }
 
 void MovieRepo::add_like(const string& id) {
     auto movie_iter = this->find(id);
     if (movie_iter != this->movies.end()) movie_iter->add_like();
+    write_to_file();
 }

@@ -53,9 +53,16 @@ class Movie {
      * output: reference to the same ostream
      */
     friend std::ostream& operator<<(std::ostream& os, Movie& movie);
+    /*
+     * insertion operator;
+     * input: an istream reference and a Movie reference
+     * output: reference to the same istream
+     */
+    friend std::istream& operator>>(std::istream& is, Movie& movie);
 
+    string to_string();
     // increments the number of likes by 1
     void add_like();
-    // opens the trailer link from cmd
+    // opens the trailer link from terminal
     void play();
 };
