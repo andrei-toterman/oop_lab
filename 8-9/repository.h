@@ -5,7 +5,7 @@
 using std::vector;
 
 class MovieRepo {
-    private:
+    protected:
     vector<Movie>  movies;
     vector<string> genres;
     string         file;
@@ -16,13 +16,13 @@ class MovieRepo {
      */
     vector<string>::iterator find_genre(const string& genre);
     void                     read_from_file();
-    void                     write_to_file();
+    virtual void             write_to_file();
 
     public:
     explicit MovieRepo(const string& _file);
     MovieRepo()                       = default;
     MovieRepo(const MovieRepo& other) = default;
-    ~MovieRepo()                      = default;
+    virtual ~MovieRepo()              = default;
 
     // getters for all attributes
     vector<Movie>&  get_movies() { return this->movies; }
@@ -63,6 +63,7 @@ class MovieRepo {
     // populates the repository with some pre-made values
     void populate();
     void add_like(const string& id);
+    virtual void open();
 
     /*
      * assignment operator; copies the attributes from the given MovieRepo

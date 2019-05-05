@@ -1,5 +1,6 @@
 ﻿#include "ui.h"
 #include "exceptions.h"
+#include "repositoryhtml.h"
 #include <iostream>
 
 using namespace std;
@@ -18,6 +19,7 @@ void UI::print_user_menu() {
     cout << "\n1. see your watchlist"
             "\n2. browse movies by genre"
             "\n3. remove a movie from your watchlist"
+            "\n4. open the watchlist"
             "\n0. exit";
 }
 
@@ -51,8 +53,7 @@ void UI::browse_by_genre() {
     do {
         cout << endl << current_movie->to_string() << endl;
         current_movie->play();
-        bool liked = this->yes_no("did you like the trailer?");
-        if (liked) {
+        if (this->yes_no("did you like the trailer?")) {
             try {
                 this->ctrl.watchlist_add(*current_movie);
                 cout << "\ngreat! movie has been added to your watchlist";
@@ -78,12 +79,12 @@ void UI::watchlist_remove() {
 }
 
 void UI::print_watchlist() {
-    if (this->ctrl.get_watchlist().size() == 0) {
+    if (this->ctrl.get_watchlist()->size() == 0) {
         cout << "\nno movies found\n";
         return;
     }
     cout << "\ncurrent movies in your watchlist:\n";
-    for (Movie movie : this->ctrl.get_watchlist().get_movies())
+    for (Movie movie : this->ctrl.get_watchlist()->get_movies())
         cout << endl << movie.to_string() << endl;
 }
 
@@ -168,7 +169,26 @@ void UI::db_update() {
 
 void UI::start() {
     int cmd = -1;
-    cout << "Local Movie Database" << endl;
+    cout << "Local Movie Database\n"
+            "\nChoose the watchlist format"
+            "\n1. csv"
+            "\n2. html"
+         << endl;
+
+    while (cmd != 1 && cmd != 2) {
+        cin >> cmd;
+        switch (cmd) {
+            case 1: {
+                this->ctrl.set_watchlist(new MovieRepo("watchlist.csv"));
+                break;
+            }
+            case 2: {
+                this->ctrl.set_watchlist(new MovieRepoHtml("watchlist.csv"));
+                break;
+            }
+            default: cout << "\ninvalid format\n";
+        }
+    }
 
     while (cmd != 0) {
         cout << "\n1. use as administrator"
@@ -228,6 +248,10 @@ void UI::start() {
                         }
                         case 3: {
                             this->watchlist_remove();
+                            break;
+                        }
+                        case 4: {
+                            this->ctrl.get_watchlist()->open();
                             break;
                         }
                         default: cout << "\ninvalid command\n";

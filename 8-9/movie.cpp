@@ -31,6 +31,13 @@ string Movie::to_string() {
            std::to_string(this->likes) + " likes";
 }
 
+string Movie::to_html_tr() {
+    return "\n\t\t<tr>\n\t\t\t<td>" + this->title + "</td>\n\t\t\t<td>" + this->genre +
+           "</td>\n\t\t\t<td>" + std::to_string(this->year) + "</td>\n\t\t\t<td>" +
+           std::to_string(this->likes) + "</td>\n\t\t\t<td><a href =\"" + this->trailer +
+           "\">Link</a></td>\n\t\t</tr>";
+}
+
 std::istream& operator>>(std::istream& is, Movie& movie) {
     std::vector<string> tokens;
     string              line;

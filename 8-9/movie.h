@@ -61,6 +61,7 @@ class Movie {
     friend std::istream& operator>>(std::istream& is, Movie& movie);
 
     string to_string();
+    string to_html_tr();
     // increments the number of likes by 1
     void add_like();
     // opens the trailer link from terminal

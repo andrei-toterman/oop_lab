@@ -97,8 +97,7 @@ void test_repo() {
 
 void test_ctrl_add() {
     MovieRepo  database;
-    MovieRepo  watchlist;
-    Controller ctrl{ database, watchlist };
+    Controller ctrl{ database, new MovieRepo() };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     int size = ctrl.get_database().size();
     assert(size == 1);
@@ -132,14 +131,13 @@ void test_ctrl_add() {
     } catch (...) { assert(true); }
 
     ctrl.watchlist_add(database[0]);
-    size = ctrl.get_watchlist().size();
+    size = ctrl.get_watchlist()->size();
     assert(size == 1);
 }
 
 void test_ctrl_remove() {
     MovieRepo  database;
-    MovieRepo  watchlist;
-    Controller ctrl{ database, watchlist };
+    Controller ctrl{ database, new MovieRepo() };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     ctrl.database_add("b", "b", 1, 2, "www.google.com");
     ctrl.watchlist_add(database[0]);
@@ -147,10 +145,10 @@ void test_ctrl_remove() {
     ctrl.database_remove("a_1");
     int size = ctrl.get_database().size();
     assert(size == 1);
-    size = ctrl.get_watchlist().size();
+    size = ctrl.get_watchlist()->size();
     assert(size == 1);
     ctrl.watchlist_remove("b_1", true);
-    size = ctrl.get_watchlist().size();
+    size = ctrl.get_watchlist()->size();
     assert(size == 0);
     try {
         ctrl.database_remove("adwada");
@@ -160,14 +158,14 @@ void test_ctrl_remove() {
 
 void test_ctrl_update() {
     MovieRepo  database;
-    MovieRepo  watchlist;
+    MovieRepo* watchlist = new MovieRepo();
     Controller ctrl{ database, watchlist };
     Movie      m{ "b", "c", 2, 3, "www.reddit.com" };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     ctrl.watchlist_add(database[0]);
     ctrl.database_update("a_1", "b", "c", 2, 3, "www.reddit.com");
     assert(database[0] == m);
-    assert(watchlist[0] == m);
+    assert((*watchlist)[0] == m);
     try {
         ctrl.database_update("a_1", "b", "c", 2, 3, "www.reddit.com");
         assert(false);

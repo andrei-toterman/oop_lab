@@ -107,3 +107,8 @@ void MovieRepo::add_like(const string& id) {
     if (movie_iter != this->movies.end()) movie_iter->add_like();
     write_to_file();
 }
+
+void MovieRepo::open() {
+    this->write_to_file();
+    system(("xdg-open " + this->file).c_str());
+}
