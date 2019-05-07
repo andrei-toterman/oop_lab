@@ -58,4 +58,4 @@ std::ostream& operator<<(std::ostream& os, Movie& movie) {
     return os;
 }
 
-void Movie::play() { system(("xdg-open " + this->trailer).c_str()); }
+void Movie::play() { system(("start " + this->trailer).c_str()); }

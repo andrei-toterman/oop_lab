@@ -4,29 +4,29 @@
 
 using std::vector;
 
-class MovieRepo {
+class Repository {
     protected:
     vector<Movie>  movies;
     vector<string> genres;
-    string         file;
     /*
      * searches for a Movie genre in the genres DynamicVector
      * input: the genre after which to look
      * output: the position at which the Movie genre is found, or -1 if it is not found
      */
     vector<string>::iterator find_genre(const string& genre);
-    void                     read_from_file();
-    virtual void             write_to_file();
 
     public:
-    explicit MovieRepo(const string& _file);
-    MovieRepo()                       = default;
-    MovieRepo(const MovieRepo& other) = default;
-    virtual ~MovieRepo()              = default;
+    Repository()                        = default;
+    Repository(const Repository& other) = default;
+    ~Repository()                       = default;
 
     // getters for all attributes
-    vector<Movie>&  get_movies() { return this->movies; }
-    vector<string>& get_genres() { return this->genres; }
+    vector<Movie>& get_movies() {
+        return this->movies;
+    }
+    vector<string>& get_genres() {
+        return this->genres;
+    }
 
     // returns the size of the movies DynamicVector
     int size() { return static_cast<int>(this->movies.size()); }
@@ -58,19 +58,18 @@ class MovieRepo {
      * output: a new MovieRepo with the filtered movies
      */
     template <typename Func>
-    MovieRepo filter_by(Func filter);
+    Repository filter_by(Func filter);
 
     // populates the repository with some pre-made values
     void populate();
     void add_like(const string& id);
-    virtual void open();
 
     /*
      * assignment operator; copies the attributes from the given MovieRepo
      * input: reference to a MovieRepo from which to copy
      * output: reference to the newly copied MovieRepo
      */
-    MovieRepo& operator=(const MovieRepo& other);
+    Repository& operator=(const Repository& other);
     /* subscript operator
      * input: index of Movie from the movies DynamicVector
      * output: reference to the movie at that index
@@ -79,8 +78,8 @@ class MovieRepo {
 };
 
 template <typename Func>
-MovieRepo MovieRepo::filter_by(Func filter) {
-    MovieRepo filtered_repo;
+Repository Repository::filter_by(Func filter) {
+    Repository filtered_repo;
     for (Movie movie : this->get_movies())
         if (filter(movie)) filtered_repo.add(movie);
     return filtered_repo;

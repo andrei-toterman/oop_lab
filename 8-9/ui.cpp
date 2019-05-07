@@ -1,6 +1,7 @@
 ﻿#include "ui.h"
+#include "csvwatchlist.h"
 #include "exceptions.h"
-#include "repositoryhtml.h"
+#include "htmlwatchlist.h"
 #include <iostream>
 
 using namespace std;
@@ -40,7 +41,7 @@ void UI::browse_by_genre() {
     cout << "\ngive the genre you would like to browse: ";
     getline(cin, genre);
 
-    MovieRepo temp_repo{ this->ctrl.get_database().filter_by(
+    Repository temp_repo{ this->ctrl.get_database().filter_by(
         [genre](const Movie& movie) -> bool { return movie.get_genre() == genre; }) };
 
     if (temp_repo.size() == 0) {
@@ -179,11 +180,11 @@ void UI::start() {
         cin >> cmd;
         switch (cmd) {
             case 1: {
-                this->ctrl.set_watchlist(new MovieRepo("watchlist.csv"));
+                this->ctrl.set_watchlist(new CsvWatchlist("watchlist.csv"));
                 break;
             }
             case 2: {
-                this->ctrl.set_watchlist(new MovieRepoHtml("watchlist.csv"));
+                this->ctrl.set_watchlist(new HtmlWatchlist("watchlist.html"));
                 break;
             }
             default: cout << "\ninvalid format\n";

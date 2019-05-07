@@ -1,10 +1,10 @@
 ﻿#include "tests.h"
 #include "controller.h"
-#include "repository.h"
+#include "filerepository.h"
 #include <cassert>
 
 void test_repo_add() {
-    MovieRepo repo;
+    Repository repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
     repo.add(Movie("d", "e", 3, 4, "f"));
     repo.add(Movie("g", "e", 5, 6, "i"));
@@ -16,7 +16,7 @@ void test_repo_add() {
 }
 
 void test_repo_remove() {
-    MovieRepo repo;
+    Repository repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
     repo.add(Movie("d", "e", 3, 4, "f"));
     repo.remove("a_1");
@@ -31,7 +31,7 @@ void test_repo_remove() {
 }
 
 void test_repo_index_operator() {
-    MovieRepo repo;
+    Repository repo;
     Movie     m{ "a", "b", 1, 2, "c" };
     repo.add(m);
     assert(repo[0] == m);
@@ -42,7 +42,7 @@ void test_repo_index_operator() {
 }
 
 void test_repo_find() {
-    MovieRepo repo;
+    Repository repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
     auto movie_iter = repo.find("a_1");
     auto repo_end   = repo.get_movies().end();
@@ -53,9 +53,9 @@ void test_repo_find() {
 }
 
 void test_repo_assign_operator() {
-    MovieRepo repo;
+    Repository repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
-    MovieRepo new_repo;
+    Repository new_repo;
     new_repo = repo;
     int size = new_repo.size();
     assert(size == 1);
@@ -63,7 +63,7 @@ void test_repo_assign_operator() {
 }
 
 void test_repo_update() {
-    MovieRepo repo;
+    Repository repo;
     repo.add(Movie("a", "b", 1, 2, "c"));
     repo.update("a_1", Movie{ "c", "d", 2, 3, "e" });
     auto movie_iter = repo.find("c_2");
@@ -75,9 +75,9 @@ void test_repo_update() {
 }
 
 void test_repo_filter() {
-    MovieRepo repo;
+    Repository repo;
     repo.populate();
-    MovieRepo filtered{ repo.filter_by([](Movie m) { return m.get_genre() == "action"; }) };
+    Repository filtered{ repo.filter_by([](Movie m) { return m.get_genre() == "action"; }) };
     int       size = filtered.size();
     assert(size == 3);
     assert(filtered[0].get_id() == "Avengers_2019");
@@ -96,8 +96,8 @@ void test_repo() {
 }
 
 void test_ctrl_add() {
-    MovieRepo  database;
-    Controller ctrl{ database, new MovieRepo() };
+    FileRepository database;
+    Controller     ctrl{database, new FileRepository()};
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     int size = ctrl.get_database().size();
     assert(size == 1);
@@ -136,8 +136,8 @@ void test_ctrl_add() {
 }
 
 void test_ctrl_remove() {
-    MovieRepo  database;
-    Controller ctrl{ database, new MovieRepo() };
+    FileRepository database;
+    Controller     ctrl{database, new FileRepository()};
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     ctrl.database_add("b", "b", 1, 2, "www.google.com");
     ctrl.watchlist_add(database[0]);
@@ -157,8 +157,8 @@ void test_ctrl_remove() {
 }
 
 void test_ctrl_update() {
-    MovieRepo  database;
-    MovieRepo* watchlist = new MovieRepo();
+    FileRepository  database;
+    FileRepository* watchlist = new FileRepository();
     Controller ctrl{ database, watchlist };
     Movie      m{ "b", "c", 2, 3, "www.reddit.com" };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");

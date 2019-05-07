@@ -1,14 +1,14 @@
-﻿#include "repositoryhtml.h"
+﻿#include "htmlwatchlist.h"
 #include "tests.h"
 #include "ui.h"
 
 int main() {
-    test_ctrl();
-    test_repo();
+    //    test_ctrl();
+    //    test_repo();
 
-    MovieRepo  database{ "database.csv" };
-    MovieRepo* watchlist;
-    Controller ctrl{ database, watchlist };
+    FileRepository  database{"database.csv"};
+    FileRepository* watchlist = nullptr;
+    Controller      ctrl{database, watchlist};
     UI         ui{ ctrl };
 
     ui.start();

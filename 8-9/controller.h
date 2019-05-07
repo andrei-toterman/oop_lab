@@ -1,11 +1,11 @@
 ﻿#pragma once
+#include "filerepository.h"
 #include "movievalidator.h"
-#include "repository.h"
 
 class Controller {
     private:
-    MovieRepo& database;
-    MovieRepo*     watchlist;
+    FileRepository& database;
+    FileRepository* watchlist;
     MovieValidator validator;
 
     public:
@@ -13,15 +13,19 @@ class Controller {
      * parameterized constructor
      * input: a reference to a MovieRepo for the database and one for the watchlist
      */
-    Controller(MovieRepo& _repo, MovieRepo* _watchlist);
+    Controller(FileRepository& _database, FileRepository* _watchlist);
     ~Controller();
 
     // returns a reference to the controller's database
-    MovieRepo& get_database() { return this->database; }
+    FileRepository& get_database() {
+        return this->database;
+    }
     // returns a reference to the controller's watchlist
-    MovieRepo* get_watchlist() { return this->watchlist; }
+    FileRepository* get_watchlist() {
+        return this->watchlist;
+    }
 
-    void set_watchlist(MovieRepo* _watchlist);
+    void set_watchlist(FileRepository* _watchlist);
 
     /*
      * creates a new Movie with the given arguments and adds it to the database if it is valid
