@@ -10,11 +10,11 @@ class FileRepository : public Repository {
     public:
     FileRepository() = default;
     explicit FileRepository(const string& _file);
-    virtual ~FileRepository() = default;
+    virtual ~FileRepository() override = default;
 
-    void add(const Movie& movie);
-    void remove(const string& id);
-    void update(const string& id, const Movie& new_movie);
+    void add(const Movie& movie) override;
+    void remove(const string& id) override;
+    void update(const string& id, const Movie& new_movie) override;
     void add_like(const string& id);
     void open();
 };

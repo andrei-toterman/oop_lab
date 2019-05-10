@@ -15,6 +15,7 @@ void FileRepository::read_from_file() {
 
 void FileRepository::write_to_file() {
     std::ofstream f(this->file);
+    if (this->file == "") return;
     if (!f.is_open()) throw RepoException("can't open file");
     for (Movie& movie : this->movies) {
         f << movie;

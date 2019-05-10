@@ -1,7 +1,7 @@
 ﻿#include "controller.h"
 #include <stdexcept>
 
-Controller::Controller(FileRepository& _database, FileRepository* _watchlist)
+Controller::Controller(Repository& _database, FileRepository* _watchlist)
     : database{_database}, watchlist{_watchlist} {}
 
 Controller::~Controller() {

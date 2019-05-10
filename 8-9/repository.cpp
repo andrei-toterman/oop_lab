@@ -62,13 +62,6 @@ void Repository::populate() {
                     "https://www.imdb.com/title/tt0110912/videoplayer/vi2620371481"});
 }
 
-Repository& Repository::operator=(const Repository& other) {
-    if (this == &other) return *this;
-    this->movies = other.movies;
-    this->genres = other.genres;
-    return *this;
-}
-
 Movie& Repository::operator[](int index) {
     if (index < 0 || static_cast<unsigned long long>(index) >= this->movies.size())
         throw RepoException("invalid index");

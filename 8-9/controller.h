@@ -4,7 +4,7 @@
 
 class Controller {
     private:
-    FileRepository& database;
+    Repository&     database;
     FileRepository* watchlist;
     MovieValidator validator;
 
@@ -13,11 +13,11 @@ class Controller {
      * parameterized constructor
      * input: a reference to a MovieRepo for the database and one for the watchlist
      */
-    Controller(FileRepository& _database, FileRepository* _watchlist);
+    Controller(Repository& _database, FileRepository* _watchlist);
     ~Controller();
 
     // returns a reference to the controller's database
-    FileRepository& get_database() {
+    Repository& get_database() {
         return this->database;
     }
     // returns a reference to the controller's watchlist

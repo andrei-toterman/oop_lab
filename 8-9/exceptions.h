@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 
 using std::string;
@@ -8,8 +8,10 @@ class MovieException {
     string msg;
 
     public:
-    explicit MovieException(const string& _msg = "") : msg{ _msg } {}
-    const char* what() const { return msg.c_str(); }
+    explicit MovieException(const string& _msg = "") : msg{_msg} {}
+    const char* what() const {
+        return msg.c_str();
+    }
 };
 
 class RepoException {
@@ -17,6 +19,8 @@ class RepoException {
     string msg;
 
     public:
-    explicit RepoException(const string& _msg = "") : msg{ _msg } {}
-    const char* what() const noexcept { return msg.c_str(); }
+    explicit RepoException(const string& _msg = "") : msg{_msg} {}
+    const char* what() const noexcept {
+        return msg.c_str();
+    }
 };

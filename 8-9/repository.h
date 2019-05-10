@@ -18,7 +18,7 @@ class Repository {
     public:
     Repository()                        = default;
     Repository(const Repository& other) = default;
-    ~Repository()                       = default;
+    virtual ~Repository()               = default;
 
     // getters for all attributes
     vector<Movie>& get_movies() {
@@ -40,18 +40,18 @@ class Repository {
      * adds a given Movie to the movies DynamicVector and adds its genre to the genres DynamicVector if needed
      * input: reference to Movie to be added
      */
-    void add(const Movie& movie);
+    virtual void add(const Movie& movie);
     /*
      * removes the Movie at the given index from the movies DynamicVector, along with its genre if needed
      * input: the index at which the Movie is located
      */
-    void remove(const string& id);
+    virtual void remove(const string& id);
     /*
      * assigns to the Movie at the given index from the moveis DynamicVector a new given Movie
      * input: index: the index at which the Movie to be updated is located
      *        new_movie: reference to the Movie with which to update
      */
-    void update(const string& id, const Movie& new_movie);
+    virtual void update(const string& id, const Movie& new_movie);
 
     /* generic filtering function; keeps the elements that satisfy the given condition
      * input: a function with which to check the elements of the movies DynamicVector
@@ -69,7 +69,7 @@ class Repository {
      * input: reference to a MovieRepo from which to copy
      * output: reference to the newly copied MovieRepo
      */
-    Repository& operator=(const Repository& other);
+    Repository& operator=(const Repository& other) = default;
     /* subscript operator
      * input: index of Movie from the movies DynamicVector
      * output: reference to the movie at that index

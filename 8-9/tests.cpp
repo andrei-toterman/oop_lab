@@ -1,5 +1,6 @@
 ﻿#include "tests.h"
 #include "controller.h"
+#include "exceptions.h"
 #include "filerepository.h"
 #include <cassert>
 
@@ -13,6 +14,9 @@ void test_repo_add() {
     size = static_cast<int>(repo.get_genres().size());
     assert(size == 2);
     repo.add(Movie("j", "k", 7, 8, "l"));
+    try {
+        repo.add(Movie("a", "b", 1, 2, "c"));
+    } catch (RepoException&) { assert(true); }
 }
 
 void test_repo_remove() {
@@ -96,39 +100,11 @@ void test_repo() {
 }
 
 void test_ctrl_add() {
-    FileRepository database;
-    Controller     ctrl{database, new FileRepository()};
+    Repository database;
+    Controller ctrl{database, new FileRepository()};
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     int size = ctrl.get_database().size();
     assert(size == 1);
-    try {
-        ctrl.database_add("a", "b", 1, 2, "www.google.com");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("", "a", 1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("a", "", 1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("a", "b", -1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("a", "b", 1, -2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("a", "b", 1, 2, "");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_add("a", "b", 1, 2, "dbkjgrbg");
-        assert(false);
-    } catch (...) { assert(true); }
 
     ctrl.watchlist_add(database[0]);
     size = ctrl.get_watchlist()->size();
@@ -150,10 +126,6 @@ void test_ctrl_remove() {
     ctrl.watchlist_remove("b_1", true);
     size = ctrl.get_watchlist()->size();
     assert(size == 0);
-    try {
-        ctrl.database_remove("adwada");
-        assert(false);
-    } catch (...) { assert(true); }
 }
 
 void test_ctrl_update() {
@@ -166,34 +138,6 @@ void test_ctrl_update() {
     ctrl.database_update("a_1", "b", "c", 2, 3, "www.reddit.com");
     assert(database[0] == m);
     assert((*watchlist)[0] == m);
-    try {
-        ctrl.database_update("a_1", "b", "c", 2, 3, "www.reddit.com");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "", "a", 1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "a", "", 1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "a", "b", -1, 2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "a", "b", 1, -2, "www.");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "a", "b", 1, 2, "");
-        assert(false);
-    } catch (...) { assert(true); }
-    try {
-        ctrl.database_update("b_2", "a", "b", 1, 2, "dbkjgrbg");
-        assert(false);
-    } catch (...) { assert(true); }
 }
 
 void test_ctrl() {
