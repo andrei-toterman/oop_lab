@@ -29,7 +29,9 @@ class Repository {
     }
 
     // returns the size of the movies DynamicVector
-    int size() { return static_cast<int>(this->movies.size()); }
+    int size() {
+        return static_cast<int>(this->movies.size());
+    }
     /*
      * searches for a Movie with the given id in the movies DynamicVector
      * input: the id after which to look
@@ -37,13 +39,13 @@ class Repository {
      */
     vector<Movie>::iterator find(const string& id);
     /*
-     * adds a given Movie to the movies DynamicVector and adds its genre to the genres DynamicVector if needed
-     * input: reference to Movie to be added
+     * adds a given Movie to the movies DynamicVector and adds its genre to the genres DynamicVector
+     * if needed input: reference to Movie to be added
      */
     virtual void add(const Movie& movie);
     /*
-     * removes the Movie at the given index from the movies DynamicVector, along with its genre if needed
-     * input: the index at which the Movie is located
+     * removes the Movie at the given index from the movies DynamicVector, along with its genre if
+     * needed input: the index at which the Movie is located
      */
     virtual void remove(const string& id);
     /*
@@ -62,6 +64,7 @@ class Repository {
 
     // populates the repository with some pre-made values
     void populate();
+    // adds a like to the Movie with the specified id
     void add_like(const string& id);
 
     /*

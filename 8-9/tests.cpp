@@ -36,7 +36,7 @@ void test_repo_remove() {
 
 void test_repo_index_operator() {
     Repository repo;
-    Movie     m{ "a", "b", 1, 2, "c" };
+    Movie      m{ "a", "b", 1, 2, "c" };
     repo.add(m);
     assert(repo[0] == m);
     try {
@@ -82,7 +82,7 @@ void test_repo_filter() {
     Repository repo;
     repo.populate();
     Repository filtered{ repo.filter_by([](Movie m) { return m.get_genre() == "action"; }) };
-    int       size = filtered.size();
+    int        size = filtered.size();
     assert(size == 3);
     assert(filtered[0].get_id() == "Avengers_2019");
     assert(filtered[1].get_id() == "Avengers_2018");
@@ -101,7 +101,7 @@ void test_repo() {
 
 void test_ctrl_add() {
     Repository database;
-    Controller ctrl{database, new FileRepository()};
+    Controller ctrl{ database, new FileRepository() };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     int size = ctrl.get_database().size();
     assert(size == 1);
@@ -113,7 +113,7 @@ void test_ctrl_add() {
 
 void test_ctrl_remove() {
     FileRepository database;
-    Controller     ctrl{database, new FileRepository()};
+    Controller     ctrl{ database, new FileRepository() };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     ctrl.database_add("b", "b", 1, 2, "www.google.com");
     ctrl.watchlist_add(database[0]);
@@ -131,8 +131,8 @@ void test_ctrl_remove() {
 void test_ctrl_update() {
     FileRepository  database;
     FileRepository* watchlist = new FileRepository();
-    Controller ctrl{ database, watchlist };
-    Movie      m{ "b", "c", 2, 3, "www.reddit.com" };
+    Controller      ctrl{ database, watchlist };
+    Movie           m{ "b", "c", 2, 3, "www.reddit.com" };
     ctrl.database_add("a", "b", 1, 2, "www.google.com");
     ctrl.watchlist_add(database[0]);
     ctrl.database_update("a_1", "b", "c", 2, 3, "www.reddit.com");

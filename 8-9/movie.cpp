@@ -12,7 +12,9 @@ Movie::Movie(const string& _title, const string& _genre, int _year, int _likes,
     trailer{ _trailer },
     id{ this->title + "_" + std::to_string(this->year) } {}
 
-void Movie::add_like() { this->likes++; }
+void Movie::add_like() {
+    this->likes++;
+}
 
 Movie& Movie::operator=(const Movie& other) {
     this->title   = other.title;
@@ -24,7 +26,9 @@ Movie& Movie::operator=(const Movie& other) {
     return *this;
 }
 
-bool Movie::operator==(const Movie& other) { return this->id == other.id; }
+bool Movie::operator==(const Movie& other) {
+    return this->id == other.id;
+}
 
 string Movie::to_string() {
     return this->title + " - " + std::to_string(this->year) + "\nGenre: " + this->genre + ",\t" +
@@ -58,4 +62,6 @@ std::ostream& operator<<(std::ostream& os, Movie& movie) {
     return os;
 }
 
-void Movie::play() { system(("start " + this->trailer).c_str()); }
+void Movie::play() {
+    system(("start " + this->trailer).c_str());
+}

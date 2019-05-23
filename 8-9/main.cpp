@@ -6,10 +6,10 @@ int main() {
     test_ctrl();
     test_repo();
 
-    FileRepository  database{"database.csv"};
+    FileRepository  database{ "database.csv" };
     FileRepository* watchlist = nullptr;
-    Controller      ctrl{database, watchlist};
-    UI              ui{ctrl};
+    Controller      ctrl{ database, watchlist };
+    UI              ui{ ctrl };
 
     ui.start();
 

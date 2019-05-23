@@ -37,7 +37,8 @@ void UI::print_db() {
 void UI::browse_by_genre() {
     string genre;
     cout << "\ncurrent genres are:\n";
-    for (string g : this->ctrl.get_database().get_genres()) cout << g << endl;
+    for (string g : this->ctrl.get_database().get_genres())
+        cout << g << endl;
     cout << "\ngive the genre you would like to browse: ";
     getline(cin, genre);
 

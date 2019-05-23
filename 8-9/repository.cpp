@@ -40,26 +40,26 @@ void Repository::update(const string& id, const Movie& new_movie) {
 }
 
 void Repository::populate() {
-    this->add(Movie{"Bird Box", "horror", 2018, 123,
-                    "https://www.imdb.com/title/tt2737304/videoplayer/vi2966010393"});
-    this->add(Movie{"It", "horror", 2017, 321,
-                    "https://www.imdb.com/title/tt1396484/videoplayer/vi1396095257"});
-    this->add(Movie{"The Shining", "horror", 1980, 999,
-                    "https://www.imdb.com/title/tt0081505/videoplayer/vi1476002073"});
-    this->add(Movie{"Avengers", "action", 2019, 1,
-                    "https://www.imdb.com/title/tt4154796/videoplayer/vi786742553"});
-    this->add(Movie{"Avengers", "action", 2018, 9,
-                    "https://www.imdb.com/title/tt4154756/videoplayer/vi528070681"});
-    this->add(Movie{"Batman", "action", 2008, 100,
-                    "https://www.imdb.com/title/tt0468569/videoplayer/vi324468761"});
-    this->add(Movie{"Deadpool", "comedy", 2016, 420,
-                    "https://www.imdb.com/title/tt1431045/videoplayer/vi567457049"});
-    this->add(Movie{"Aladdin", "comedy", 2019, 69,
-                    "https://www.imdb.com/title/tt6139732/videoplayer/vi290241049"});
-    this->add(Movie{"Interstellar", "drama", 2014, 666,
-                    "https://www.imdb.com/title/tt0816692/videoplayer/vi1586278169"});
-    this->add(Movie{"Pulp Fiction", "drama", 1994, 80085,
-                    "https://www.imdb.com/title/tt0110912/videoplayer/vi2620371481"});
+    this->add(Movie{ "Bird Box", "horror", 2018, 123,
+                     "https://www.imdb.com/title/tt2737304/videoplayer/vi2966010393" });
+    this->add(Movie{ "It", "horror", 2017, 321,
+                     "https://www.imdb.com/title/tt1396484/videoplayer/vi1396095257" });
+    this->add(Movie{ "The Shining", "horror", 1980, 999,
+                     "https://www.imdb.com/title/tt0081505/videoplayer/vi1476002073" });
+    this->add(Movie{ "Avengers", "action", 2019, 1,
+                     "https://www.imdb.com/title/tt4154796/videoplayer/vi786742553" });
+    this->add(Movie{ "Avengers", "action", 2018, 9,
+                     "https://www.imdb.com/title/tt4154756/videoplayer/vi528070681" });
+    this->add(Movie{ "Batman", "action", 2008, 100,
+                     "https://www.imdb.com/title/tt0468569/videoplayer/vi324468761" });
+    this->add(Movie{ "Deadpool", "comedy", 2016, 420,
+                     "https://www.imdb.com/title/tt1431045/videoplayer/vi567457049" });
+    this->add(Movie{ "Aladdin", "comedy", 2019, 69,
+                     "https://www.imdb.com/title/tt6139732/videoplayer/vi290241049" });
+    this->add(Movie{ "Interstellar", "drama", 2014, 666,
+                     "https://www.imdb.com/title/tt0816692/videoplayer/vi1586278169" });
+    this->add(Movie{ "Pulp Fiction", "drama", 1994, 80085,
+                     "https://www.imdb.com/title/tt0110912/videoplayer/vi2620371481" });
 }
 
 Movie& Repository::operator[](int index) {

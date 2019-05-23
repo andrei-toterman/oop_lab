@@ -23,17 +23,30 @@ class Movie {
      *        _likes: likes of the movie
      *        _trailer: trailer of the movie
      */
-    Movie(const string& _title, const string& _genre, int _year, int _likes, const string& _trailer);
+    Movie(const string& _title, const string& _genre, int _year, int _likes,
+          const string& _trailer);
     Movie(const Movie& other) = default;
     ~Movie()                  = default;
 
     // getters for all attributes
-    string get_title() const { return this->title; }
-    string get_genre() const { return this->genre; }
-    int    get_year() const { return this->year; }
-    int    get_likes() const { return this->likes; }
-    string get_trailer() const { return this->trailer; }
-    string get_id() const { return this->id; }
+    string get_title() const {
+        return this->title;
+    }
+    string get_genre() const {
+        return this->genre;
+    }
+    int get_year() const {
+        return this->year;
+    }
+    int get_likes() const {
+        return this->likes;
+    }
+    string get_trailer() const {
+        return this->trailer;
+    }
+    string get_id() const {
+        return this->id;
+    }
 
     /*
      * assignment operator; copies each attributes from the given Movie
@@ -60,7 +73,9 @@ class Movie {
      */
     friend std::istream& operator>>(std::istream& is, Movie& movie);
 
+    // creates a string representation of the object
     string to_string();
+    // creates an HTML table row with the attributes of the object
     string to_html_tr();
     // increments the number of likes by 1
     void add_like();

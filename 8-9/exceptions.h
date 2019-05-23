@@ -8,7 +8,7 @@ class MovieException {
     string msg;
 
     public:
-    explicit MovieException(const string& _msg = "") : msg{_msg} {}
+    explicit MovieException(const string& _msg = "") : msg{ _msg } {}
     const char* what() const {
         return msg.c_str();
     }
@@ -19,7 +19,7 @@ class RepoException {
     string msg;
 
     public:
-    explicit RepoException(const string& _msg = "") : msg{_msg} {}
+    explicit RepoException(const string& _msg = "") : msg{ _msg } {}
     const char* what() const noexcept {
         return msg.c_str();
     }

@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include "exceptions.h"
 #include "movie.h"
 
 class MovieValidator {
     public:
     MovieValidator() = default;
+    // checks if a given Movie has valid attributes
     void validate_movie(const Movie& movie) {
         std::string error = "invalid movie:\n";
         if (movie.get_title().empty()) error += "title must not be empty\n";

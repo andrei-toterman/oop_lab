@@ -24,7 +24,7 @@ void FileRepository::write_to_file() {
     f.close();
 }
 
-FileRepository::FileRepository(const std::string& _file) : file{_file} {
+FileRepository::FileRepository(const std::string& _file) : file{ _file } {
     this->read_from_file();
 }
 
