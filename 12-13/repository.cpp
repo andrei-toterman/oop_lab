@@ -23,7 +23,7 @@ void Repository::add(const Movie& movie) {
 
 void Repository::remove(const string& id) {
     auto movie_iter = this->find(id);
-    if (movie_iter == this->movies.end()) throw RepoException("movie does not exist");
+    if (movie_iter == this->movies.end()) throw RepoException("no movie selected");
     auto genre_iter = this->find_genre(movie_iter->get_genre());
     this->movies.erase(movie_iter);
     if (genre_iter != this->genres.end()) this->genres.erase(genre_iter);
@@ -31,7 +31,7 @@ void Repository::remove(const string& id) {
 
 void Repository::update(const string& id, const Movie& new_movie) {
     auto movie_iter = this->find(id);
-    if (movie_iter == this->movies.end()) throw RepoException("movie does not exist");
+    if (movie_iter == this->movies.end()) throw RepoException("no movie selected");
     auto genre_iter = this->find_genre(movie_iter->get_genre());
     if (genre_iter != this->genres.end()) this->genres.erase(genre_iter);
     *movie_iter = new_movie;

@@ -7,7 +7,7 @@ class MovieValidator {
     MovieValidator() = default;
     // checks if a given Movie has valid attributes
     void validate_movie(const Movie& movie) {
-        std::string error = "invalid movie:\n";
+        std::string error;
         if (movie.get_title().empty()) error += "title must not be empty\n";
         if (movie.get_genre().empty()) error += "genre must not be empty\n";
         if (movie.get_year() < 0) error += "year must not be a positive number\n";
@@ -16,6 +16,6 @@ class MovieValidator {
         if (movie.get_trailer().find("www.") != 0 && movie.get_trailer().find("https://") != 0 &&
             movie.get_trailer().find("http://") != 0)
             error += "url must start with www., http:// or https://\n";
-        if (error != "invalid movie:\n") throw MovieException(error);
+        if (!error.empty()) throw MovieException(error);
     }
 };

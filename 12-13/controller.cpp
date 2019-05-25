@@ -21,8 +21,7 @@ void Controller::database_add(const std::string& title, const std::string& genre
 
 void Controller::database_remove(const std::string& id) {
     this->database.remove(id);
-    if (this->watchlist->find(id) != this->watchlist->get_movies().end())
-        this->watchlist->remove(id);
+    if (this->watchlist->find(id) != this->watchlist->get_movies().end()) this->watchlist->remove(id);
 }
 
 void Controller::database_update(const std::string& id, const std::string& title,
