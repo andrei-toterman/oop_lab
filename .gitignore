@@ -1,7 +1,5 @@
 *.pdf
 *.json
-*.pro*
-*.user
 *.sln
 **/Debug
 /Examples
@@ -10,3 +8,4 @@
 **/.vs
 *.vcx*
 *.log
+*-pre*
