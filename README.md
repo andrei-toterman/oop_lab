@@ -1,1 +1,0 @@
-Projects for second semester OOP labs
